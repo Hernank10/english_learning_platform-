@@ -1,0 +1,777 @@
+{% extends "base.html" %}
+
+{% block title %}Flashcards - English Learning Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos de flashcards */
+    .flashcards-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 30px 30px;
+    }
+    
+    /* Modo de estudio selector */
+    .study-mode-selector {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        justify-content: center;
+    }
+    
+    .mode-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .mode-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .mode-btn:not(.active) {
+        background: white;
+        color: #4a5568;
+        border: 1px solid #e2e8f0;
+    }
+    
+    /* Contenedor de flashcards */
+    .flashcards-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 500px;
+        perspective: 1000px;
+        margin-bottom: 2rem;
+    }
+    
+    .flashcard {
+        width: 100%;
+        max-width: 600px;
+        height: 400px;
+        position: relative;
+        cursor: pointer;
+        transform-style: preserve-3d;
+        transition: transform 0.6s;
+    }
+    
+    .flashcard.flipped {
+        transform: rotateY(180deg);
+    }
+    
+    .flashcard-front, .flashcard-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .flashcard-front {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .flashcard-back {
+        background: white;
+        color: #2d3748;
+        transform: rotateY(180deg);
+    }
+    
+    .flashcard-front .category-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: rgba(255,255,255,0.2);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+    }
+    
+    .flashcard-front .difficulty-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+    }
+    
+    .flashcard-front .spanish-word {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+    
+    .flashcard-front .hint {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        margin-top: 1rem;
+    }
+    
+    .flashcard-back .english-word {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        color: #667eea;
+    }
+    
+    .flashcard-back .example {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-top: 1rem;
+        font-style: italic;
+    }
+    
+    /* Controles de navegación */
+    .navigation-controls {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #e2e8f0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-btn:hover {
+        background: #667eea;
+        border-color: #667eea;
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    /* Indicador de progreso */
+    .progress-indicator {
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    /* Botones de acción */
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+    
+    .action-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .action-btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .action-btn-secondary {
+        background: white;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+    
+    .action-btn-danger {
+        background: #f8d7da;
+        color: #721c24;
+        border: 2px solid #dc3545;
+    }
+    
+    /* Estadísticas de estudio */
+    .stats-panel {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+    
+    .stat-card {
+        text-align: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+    
+    /* Modo de estudio rápido */
+    .quick-study {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+    
+    /* Animaciones */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .flashcard {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .pulse-animation {
+        animation: pulse 0.5s ease-in-out;
+    }
+    
+    /* Modo oscuro */
+    @media (prefers-color-scheme: dark) {
+        .mode-btn:not(.active) {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-color: #4a5568;
+        }
+        
+        .flashcard-back {
+            background: #2d3748;
+            color: #f7fafc;
+        }
+        
+        .stats-panel {
+            background: #2d3748;
+        }
+        
+        .stat-card {
+            background: #1a202c;
+        }
+        
+        .quick-study {
+            background: #1a202c;
+        }
+        
+        .action-btn-secondary {
+            background: #2d3748;
+            color: #f7fafc;
+            border-color: #667eea;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flashcards-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="bi bi-card-list me-2"></i>
+                    Flashcards Interactivas
+                </h1>
+                <p class="lead mb-0">Aprende vocabulario de forma visual e interactiva</p>
+            </div>
+            <div>
+                <div class="bg-white rounded-3 px-3 py-2 text-dark">
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <span id="totalScore">{{ user_stats.total_score or 0 }}</span> pts
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <!-- Selector de modo de estudio -->
+    <div class="study-mode-selector">
+        <button class="mode-btn active" onclick="setStudyMode('all')">
+            <i class="bi bi-grid-3x3-gap-fill me-2"></i>Todas
+        </button>
+        <button class="mode-btn" onclick="setStudyMode('pending')">
+            <i class="bi bi-clock-history me-2"></i>Por repasar
+        </button>
+        <button class="mode-btn" onclick="setStudyMode('mastered')">
+            <i class="bi bi-trophy-fill me-2"></i>Dominadas
+        </button>
+        <button class="mode-btn" onclick="setStudyMode('random')">
+            <i class="bi bi-shuffle me-2"></i>Aleatorio
+        </button>
+    </div>
+    
+    <!-- Filtros de categoría -->
+    <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
+        <button class="btn btn-sm btn-outline-primary active" onclick="filterByCategory('all')">Todas</button>
+        <button class="btn btn-sm btn-outline-primary" onclick="filterByCategory('Saludos')">👋 Saludos</button>
+        <button class="btn btn-sm btn-outline-primary" onclick="filterByCategory('Verbos')">🏃 Verbos</button>
+        <button class="btn btn-sm btn-outline-primary" onclick="filterByCategory('Sustantivos')">📦 Sustantivos</button>
+        <button class="btn btn-sm btn-outline-primary" onclick="filterByCategory('Adjetivos')">🎨 Adjetivos</button>
+        <button class="btn btn-sm btn-outline-primary" onclick="filterByCategory('Conectores')">🔗 Conectores</button>
+        <button class="btn btn-sm btn-outline-primary" onclick="filterByCategory('Vocabulario')">📚 Vocabulario</button>
+    </div>
+    
+    <!-- Contenedor principal de flashcards -->
+    <div class="flashcards-container">
+        <div class="flashcard" id="flashcard" onclick="flipCard()">
+            <div class="flashcard-front">
+                <span class="category-badge" id="cardCategory">Categoría</span>
+                <span class="difficulty-badge" id="cardDifficulty">Dificultad</span>
+                <div class="spanish-word" id="cardSpanish">Cargando...</div>
+                <div class="hint" id="cardHint">💡 Haz clic para ver la respuesta</div>
+            </div>
+            <div class="flashcard-back">
+                <div class="english-word" id="cardEnglish">-</div>
+                <div class="example" id="cardExample">-</div>
+                <div class="mt-3">
+                    <button class="btn btn-sm btn-success me-2" onclick="event.stopPropagation(); markAsKnown()">
+                        <i class="bi bi-check-circle"></i> Lo sé
+                    </button>
+                    <button class="btn btn-sm btn-warning" onclick="event.stopPropagation(); markAsUnknown()">
+                        <i class="bi bi-question-circle"></i> Repasar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Controles de navegación -->
+    <div class="navigation-controls">
+        <button class="nav-btn" onclick="previousCard()">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+        <button class="nav-btn" onclick="nextCard()">
+            <i class="bi bi-chevron-right"></i>
+        </button>
+    </div>
+    
+    <div class="progress-indicator">
+        <span id="currentCardIndex">1</span> / <span id="totalCards">0</span>
+        <span class="ms-3" id="masteredCount"></span>
+    </div>
+    
+    <!-- Botones de acción -->
+    <div class="action-buttons">
+        <button class="action-btn action-btn-primary" onclick="shuffleCards()">
+            <i class="bi bi-shuffle me-2"></i>Mezclar
+        </button>
+        <button class="action-btn action-btn-secondary" onclick="resetProgress()">
+            <i class="bi bi-arrow-repeat me-2"></i>Reiniciar progreso
+        </button>
+        <button class="action-btn action-btn-danger" onclick="clearAllProgress()">
+            <i class="bi bi-trash me-2"></i>Borrar todo
+        </button>
+    </div>
+    
+    <!-- Estadísticas de estudio -->
+    <div class="stats-panel">
+        <h5 class="mb-3">
+            <i class="bi bi-graph-up me-2 text-primary"></i>
+            Estadísticas de Estudio
+        </h5>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalCardsStat">0</div>
+                <small>Total flashcards</small>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="masteredCardsStat">0</div>
+                <small>Dominadas</small>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="pendingCardsStat">0</div>
+                <small>Por repasar</small>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="studySessionStat">0</div>
+                <small>Sesión actual</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modo de estudio rápido -->
+    <div class="quick-study mt-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <i class="bi bi-stopwatch fs-4 me-2 text-primary"></i>
+                <strong>Modo Estudio Rápido</strong>
+            </div>
+            <button class="btn btn-sm btn-primary" onclick="startQuickStudy()">
+                <i class="bi bi-play-fill me-1"></i>Iniciar
+            </button>
+        </div>
+        <div class="small text-muted mt-2">
+            Estudia 10 flashcards aleatorias en 5 minutos
+        </div>
+    </div>
+</div>
+
+<script>
+// Datos de flashcards desde el backend
+let flashcards = {{ flashcards | tojson }};
+let currentIndex = 0;
+let isFlipped = false;
+let currentMode = 'all';
+let currentCategory = 'all';
+let mastered = new Set();
+let sessionCount = 0;
+
+// Inicializar
+function init() {
+    loadMasteredFromStorage();
+    updateStats();
+    loadCard(currentIndex);
+}
+
+// Cargar flashcard
+function loadCard(index) {
+    if (flashcards.length === 0) return;
+    
+    const card = flashcards[index];
+    if (!card) return;
+    
+    document.getElementById('cardCategory').textContent = card.category;
+    document.getElementById('cardDifficulty').textContent = card.difficulty;
+    document.getElementById('cardDifficulty').className = `difficulty-badge difficulty-${card.difficulty}`;
+    document.getElementById('cardSpanish').textContent = card.spanish;
+    document.getElementById('cardEnglish').textContent = card.english;
+    document.getElementById('cardExample').textContent = card.example || 'Sin ejemplo';
+    document.getElementById('currentCardIndex').textContent = index + 1;
+    document.getElementById('totalCards').textContent = flashcards.length;
+    
+    // Resetear flip
+    if (isFlipped) {
+        document.getElementById('flashcard').classList.remove('flipped');
+        isFlipped = false;
+    }
+}
+
+// Voltear tarjeta
+function flipCard() {
+    const flashcard = document.getElementById('flashcard');
+    flashcard.classList.toggle('flipped');
+    isFlipped = !isFlipped;
+}
+
+// Siguiente tarjeta
+function nextCard() {
+    if (currentIndex < flashcards.length - 1) {
+        currentIndex++;
+        loadCard(currentIndex);
+    } else if (currentMode === 'pending' && getPendingCards().length > 0) {
+        // Volver al inicio de pendientes
+        currentIndex = 0;
+        loadCard(currentIndex);
+    } else {
+        showCompletionMessage();
+    }
+}
+
+// Anterior tarjeta
+function previousCard() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        loadCard(currentIndex);
+    }
+}
+
+// Marcar como conocida
+function markAsKnown() {
+    const card = flashcards[currentIndex];
+    mastered.add(card.id);
+    saveMasteredToStorage();
+    
+    // Efecto visual
+    const flashcard = document.getElementById('flashcard');
+    flashcard.classList.add('pulse-animation');
+    setTimeout(() => flashcard.classList.remove('pulse-animation'), 500);
+    
+    sessionCount++;
+    updateStats();
+    
+    // Auto-avanzar
+    setTimeout(() => {
+        if (currentMode === 'pending') {
+            // Eliminar de pendientes y mostrar siguiente
+            flashcards = flashcards.filter(c => !mastered.has(c.id));
+            if (currentIndex >= flashcards.length) currentIndex = flashcards.length - 1;
+            loadCard(currentIndex);
+        } else {
+            nextCard();
+        }
+    }, 300);
+}
+
+// Marcar como no conocida
+function markAsUnknown() {
+    const flashcard = document.getElementById('flashcard');
+    flashcard.classList.add('pulse-animation');
+    setTimeout(() => flashcard.classList.remove('pulse-animation'), 500);
+    
+    nextCard();
+}
+
+// Mezclar flashcards
+function shuffleCards() {
+    for (let i = flashcards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
+    }
+    currentIndex = 0;
+    loadCard(currentIndex);
+    showToast('Flashcards mezcladas', 'success');
+}
+
+// Filtrar por categoría
+function filterByCategory(category) {
+    currentCategory = category;
+    
+    // Actualizar botones
+    document.querySelectorAll('.btn-outline-primary').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    if (category === 'all') {
+        loadAllFlashcards();
+    } else {
+        flashcards = originalFlashcards.filter(c => c.category === category);
+        currentIndex = 0;
+        loadCard(currentIndex);
+    }
+    updateStats();
+}
+
+// Cargar todas las flashcards
+function loadAllFlashcards() {
+    flashcards = [...originalFlashcards];
+    currentIndex = 0;
+    loadCard(currentIndex);
+}
+
+// Guardar progreso en localStorage
+function saveMasteredToStorage() {
+    localStorage.setItem('flashcard_mastered', JSON.stringify([...mastered]));
+}
+
+// Cargar progreso desde localStorage
+function loadMasteredFromStorage() {
+    const saved = localStorage.getItem('flashcard_mastered');
+    if (saved) {
+        mastered = new Set(JSON.parse(saved));
+    }
+}
+
+// Actualizar estadísticas
+function updateStats() {
+    const total = flashcards.length;
+    const masteredCount = mastered.size;
+    const pendingCount = total - masteredCount;
+    
+    document.getElementById('totalCardsStat').textContent = total;
+    document.getElementById('masteredCardsStat').textContent = masteredCount;
+    document.getElementById('pendingCardsStat').textContent = pendingCount;
+    document.getElementById('studySessionStat').textContent = sessionCount;
+    document.getElementById('masteredCount').textContent = `📊 Dominadas: ${masteredCount}/${total}`;
+}
+
+// Obtener flashcards pendientes
+function getPendingCards() {
+    return flashcards.filter(c => !mastered.has(c.id));
+}
+
+// Modo de estudio por estado
+function setStudyMode(mode) {
+    currentMode = mode;
+    
+    // Actualizar botones
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    if (mode === 'all') {
+        flashcards = [...originalFlashcards];
+    } else if (mode === 'pending') {
+        flashcards = getPendingCards();
+    } else if (mode === 'mastered') {
+        flashcards = flashcards.filter(c => mastered.has(c.id));
+    } else if (mode === 'random') {
+        flashcards = [...originalFlashcards];
+        shuffleCards();
+    }
+    
+    currentIndex = 0;
+    loadCard(currentIndex);
+    updateStats();
+}
+
+// Reiniciar progreso de una categoría
+function resetProgress() {
+    Swal.fire({
+        title: 'Reiniciar progreso',
+        text: '¿Estás seguro? Se perderá el progreso de estas flashcards.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, reiniciar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            mastered.clear();
+            saveMasteredToStorage();
+            updateStats();
+            loadCard(currentIndex);
+            showToast('Progreso reiniciado', 'success');
+        }
+    });
+}
+
+// Borrar todo el progreso
+function clearAllProgress() {
+    Swal.fire({
+        title: 'Borrar todo el progreso',
+        text: 'Esta acción no se puede deshacer. ¿Estás seguro?',
+        icon: 'danger',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, borrar todo',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            mastered.clear();
+            saveMasteredToStorage();
+            sessionCount = 0;
+            updateStats();
+            loadCard(currentIndex);
+            showToast('Todo el progreso ha sido borrado', 'info');
+        }
+    });
+}
+
+// Iniciar modo estudio rápido
+function startQuickStudy() {
+    const quickCards = [...originalFlashcards].sort(() => 0.5 - Math.random()).slice(0, 10);
+    flashcards = quickCards;
+    currentIndex = 0;
+    loadCard(currentIndex);
+    updateStats();
+    
+    Swal.fire({
+        title: 'Modo Estudio Rápido',
+        html: `
+            <div class="text-center">
+                <i class="bi bi-stopwatch fs-1 text-primary"></i>
+                <p class="mt-2">Estudiarás <strong>10 flashcards aleatorias</strong></p>
+                <p class="small text-muted">Marca las que ya conoces para avanzar más rápido</p>
+            </div>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Comenzar',
+        timer: 5000,
+        timerProgressBar: true
+    });
+}
+
+// Mostrar mensaje de finalización
+function showCompletionMessage() {
+    Swal.fire({
+        title: '🎉 ¡Felicidades!',
+        text: 'Has completado todas las flashcards de esta selección',
+        icon: 'success',
+        confirmButtonText: 'Continuar'
+    });
+}
+
+// Mostrar toast
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type} border-0 position-fixed bottom-0 end-0 m-3`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    toast.addEventListener('hidden.bs.toast', () => toast.remove());
+}
+
+// Guardar progreso en el backend
+async function saveProgress() {
+    try {
+        await fetch('/api/save_flashcard_progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                mastered: [...mastered],
+                session_count: sessionCount
+            })
+        });
+    } catch (error) {
+        console.error('Error saving progress:', error);
+    }
+}
+
+// Guardar progreso periódicamente
+setInterval(saveProgress, 30000);
+
+// Guardar al salir
+window.addEventListener('beforeunload', () => saveProgress());
+
+// Guardar flashcards originales
+let originalFlashcards = [...flashcards];
+
+// Inicializar
+init();
+</script>
+{% endblock %}

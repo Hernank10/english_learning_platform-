@@ -1,0 +1,889 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Agregar Flashcard | English Learning Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos del formulario de flashcards */
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 30px 30px;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-label .required {
+        color: #dc3545;
+        margin-left: 4px;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    /* Vista previa de flashcard */
+    .preview-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        position: sticky;
+        top: 20px;
+    }
+    
+    .flashcard-preview {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        transform-style: preserve-3d;
+        transition: transform 0.6s;
+    }
+    
+    .flashcard-preview.flipped {
+        transform: rotateY(180deg);
+    }
+    
+    .preview-front, .preview-back {
+        backface-visibility: hidden;
+        padding: 2rem;
+        text-align: center;
+        min-height: 280px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .preview-front {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .preview-back {
+        background: #f8f9fa;
+        transform: rotateY(180deg);
+        position: relative;
+        top: -280px;
+    }
+    
+    .preview-front .spanish-word {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin: 1rem 0;
+    }
+    
+    .preview-back .english-word {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Categorías visuales */
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+    }
+    
+    .category-card {
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.75rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .category-card.selected {
+        border-color: #667eea;
+        background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+    }
+    
+    .category-icon {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .category-name {
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    /* Dificultad visual */
+    .difficulty-selector {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+    
+    .difficulty-option {
+        flex: 1;
+        text-align: center;
+        padding: 1rem;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .difficulty-option:hover {
+        transform: translateY(-2px);
+    }
+    
+    .difficulty-option.selected {
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .difficulty-basic { background: #d4edda; color: #155724; }
+    .difficulty-intermediate { background: #fff3cd; color: #856404; }
+    .difficulty-advanced { background: #f8d7da; color: #721c24; }
+    
+    .difficulty-icon {
+        font-size: 1.5rem;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+    
+    /* Sugerencias */
+    .suggestions-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .suggestion-chip {
+        background: #f8f9fa;
+        border: 1px solid #e2e8f0;
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .suggestion-chip:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+        transform: scale(1.05);
+    }
+    
+    /* Barra de progreso */
+    .form-progress {
+        margin-bottom: 2rem;
+    }
+    
+    .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    
+    .progress-steps::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #e2e8f0;
+        z-index: 1;
+    }
+    
+    .step {
+        flex: 1;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+        background: white;
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        background: #e2e8f0;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .step.active .step-number {
+        background: #667eea;
+        color: white;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+    }
+    
+    .step.completed .step-number {
+        background: #28a745;
+        color: white;
+    }
+    
+    .step-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    
+    .step.active .step-label {
+        color: #667eea;
+        font-weight: 600;
+    }
+    
+    /* Botones de navegación */
+    .nav-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    /* Animaciones */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .form-section {
+        animation: fadeInUp 0.4s ease-out;
+    }
+    
+    /* Modo oscuro */
+    @media (prefers-color-scheme: dark) {
+        .form-card {
+            background: #2d3748;
+        }
+        
+        .form-label {
+            color: #e2e8f0;
+        }
+        
+        .form-control, .form-select {
+            background: #1a202c;
+            border-color: #4a5568;
+            color: #f7fafc;
+        }
+        
+        .preview-card {
+            background: #1a202c;
+        }
+        
+        .flashcard-preview {
+            background: #2d3748;
+        }
+        
+        .preview-back {
+            background: #2d3748;
+        }
+        
+        .preview-back .english-word {
+            color: #f7fafc;
+        }
+        
+        .category-card {
+            background: #1a202c;
+            border-color: #4a5568;
+        }
+        
+        .suggestion-chip {
+            background: #1a202c;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        
+        .step {
+            background: #2d3748;
+        }
+        
+        .step-number {
+            background: #4a5568;
+            color: #e2e8f0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="bi bi-plus-circle-fill me-2"></i>
+                    Agregar Nueva Flashcard
+                </h1>
+                <p class="lead mb-0">Crea tarjetas de vocabulario interactivas para tus estudiantes</p>
+            </div>
+            <div>
+                <a href="{{ url_for('admin_flashcards') }}" class="btn btn-light btn-lg">
+                    <i class="bi bi-arrow-left me-2"></i>Volver
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row">
+        <!-- Formulario principal -->
+        <div class="col-lg-7">
+            <div class="form-card">
+                <!-- Barra de progreso -->
+                <div class="form-progress">
+                    <div class="progress-steps">
+                        <div class="step active" id="step1">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Categoría y Dificultad</div>
+                        </div>
+                        <div class="step" id="step2">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Contenido</div>
+                        </div>
+                        <div class="step" id="step3">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Configuración</div>
+                        </div>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-animated" id="formProgressBar" style="width: 33%"></div>
+                    </div>
+                </div>
+
+                <form id="flashcardForm" method="POST" action="{{ url_for('add_flashcard') }}">
+                    <!-- Sección 1: Categoría y Dificultad -->
+                    <div id="section1" class="form-section">
+                        <h4 class="mb-4">
+                            <i class="bi bi-tags me-2 text-primary"></i>
+                            Clasificación
+                        </h4>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">
+                                Categoría <span class="required">*</span>
+                            </label>
+                            <div class="category-grid" id="categoryGrid">
+                                <div class="category-card" data-category="Saludos" onclick="selectCategory('Saludos')">
+                                    <span class="category-icon">👋</span>
+                                    <span class="category-name">Saludos</span>
+                                </div>
+                                <div class="category-card" data-category="Verbos" onclick="selectCategory('Verbos')">
+                                    <span class="category-icon">🏃</span>
+                                    <span class="category-name">Verbos</span>
+                                </div>
+                                <div class="category-card" data-category="Sustantivos" onclick="selectCategory('Sustantivos')">
+                                    <span class="category-icon">📦</span>
+                                    <span class="category-name">Sustantivos</span>
+                                </div>
+                                <div class="category-card" data-category="Adjetivos" onclick="selectCategory('Adjetivos')">
+                                    <span class="category-icon">🎨</span>
+                                    <span class="category-name">Adjetivos</span>
+                                </div>
+                                <div class="category-card" data-category="Conectores" onclick="selectCategory('Conectores')">
+                                    <span class="category-icon">🔗</span>
+                                    <span class="category-name">Conectores</span>
+                                </div>
+                                <div class="category-card" data-category="Vocabulario" onclick="selectCategory('Vocabulario')">
+                                    <span class="category-icon">📚</span>
+                                    <span class="category-name">Vocabulario</span>
+                                </div>
+                            </div>
+                            <input type="hidden" id="category" name="category" required>
+                            <div class="form-text mt-2">Selecciona la categoría que mejor describa esta flashcard</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">
+                                Dificultad <span class="required">*</span>
+                            </label>
+                            <div class="difficulty-selector">
+                                <div class="difficulty-option difficulty-basic" onclick="selectDifficulty('básico')">
+                                    <span class="difficulty-icon">🟢</span>
+                                    <div class="fw-bold">Básico</div>
+                                    <small>Para principiantes</small>
+                                </div>
+                                <div class="difficulty-option difficulty-intermediate" onclick="selectDifficulty('intermedio')">
+                                    <span class="difficulty-icon">🟡</span>
+                                    <div class="fw-bold">Intermedio</div>
+                                    <small>Conocimientos previos</small>
+                                </div>
+                                <div class="difficulty-option difficulty-advanced" onclick="selectDifficulty('avanzado')">
+                                    <span class="difficulty-icon">🔴</span>
+                                    <div class="fw-bold">Avanzado</div>
+                                    <small>Vocabulario complejo</small>
+                                </div>
+                            </div>
+                            <input type="hidden" id="difficulty" name="difficulty" required>
+                        </div>
+                        
+                        <div class="nav-buttons">
+                            <div></div>
+                            <button type="button" class="btn btn-primary" onclick="nextSection()">
+                                Siguiente <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sección 2: Contenido -->
+                    <div id="section2" class="form-section" style="display: none;">
+                        <h4 class="mb-4">
+                            <i class="bi bi-file-text me-2 text-primary"></i>
+                            Contenido de la Flashcard
+                        </h4>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Palabra/Frase en español <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="spanish" name="spanish" 
+                                   placeholder="Ej: Hola, ¿cómo estás?" required>
+                            <div class="form-text">La palabra o frase que verá el estudiante primero</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Traducción al inglés <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="english" name="english" 
+                                   placeholder="Ej: Hello, how are you?" required>
+                            <div class="form-text">La respuesta correcta en inglés</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Frase de ejemplo (opcional)</label>
+                            <textarea class="form-control" id="example" name="example" rows="2" 
+                                      placeholder="Ej: Hello, how are you today? I hope you're doing well."></textarea>
+                            <div class="form-text">Ejemplo de uso en contexto real</div>
+                        </div>
+                        
+                        <!-- Sugerencias de vocabulario dinámicas -->
+                        <div class="mt-3 p-3 bg-light rounded-3">
+                            <h6 class="mb-2">
+                                <i class="bi bi-lightbulb me-2 text-warning"></i>
+                                Sugerencias de vocabulario
+                            </h6>
+                            <div id="suggestionsContainer" class="suggestions-grid">
+                                <!-- Las sugerencias se cargarán dinámicamente -->
+                            </div>
+                        </div>
+                        
+                        <div class="nav-buttons">
+                            <button type="button" class="btn btn-secondary" onclick="prevSection()">
+                                <i class="bi bi-arrow-left"></i> Anterior
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="nextSection()">
+                                Siguiente <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sección 3: Configuración adicional -->
+                    <div id="section3" class="form-section" style="display: none;">
+                        <h4 class="mb-4">
+                            <i class="bi bi-gear me-2 text-primary"></i>
+                            Configuración Adicional
+                        </h4>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Notas para el estudiante (opcional)</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                      placeholder="Consejos de pronunciación, variaciones regionales, o datos culturales..."></textarea>
+                            <div class="form-text">Información adicional que ayude al aprendizaje</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Etiquetas (opcional)</label>
+                            <input type="text" class="form-control" id="tags" name="tags" 
+                                   placeholder="saludos, conversación, básico">
+                            <div class="form-text">Separadas por comas, para facilitar búsquedas y filtros</div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="isPublic" name="is_public" checked>
+                                    <label class="form-check-label">
+                                        <i class="bi bi-globe"></i> Hacer pública esta flashcard
+                                    </label>
+                                    <div class="small text-muted">Visible para todos los estudiantes</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="enableAudio" name="enable_audio">
+                                    <label class="form-check-label">
+                                        <i class="bi bi-volume-up"></i> Habilitar audio de pronunciación
+                                    </label>
+                                    <div class="small text-muted">Requiere conexión a internet</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="nav-buttons">
+                            <button type="button" class="btn btn-secondary" onclick="prevSection()">
+                                <i class="bi bi-arrow-left"></i> Anterior
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save me-2"></i>Guardar Flashcard
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Panel de vista previa interactiva -->
+        <div class="col-lg-5">
+            <div class="preview-card">
+                <h5 class="mb-3">
+                    <i class="bi bi-eye me-2 text-primary"></i>
+                    Vista Previa Interactiva
+                </h5>
+                
+                <div id="flashcardPreview" class="flashcard-preview" onclick="flipPreview()">
+                    <div class="preview-front">
+                        <span class="badge bg-light text-dark mb-2" id="previewCategory">Categoría</span>
+                        <div class="spanish-word" id="previewSpanish">-</div>
+                        <small class="mt-3 text-white-50">▼ Haz clic para ver respuesta ▼</small>
+                    </div>
+                    <div class="preview-back">
+                        <span class="badge" id="previewDifficultyBadge">Dificultad</span>
+                        <div class="english-word mt-3" id="previewEnglish">-</div>
+                        <div class="small text-muted mt-3" id="previewExample">-</div>
+                        <small class="mt-3 text-muted">▼ Haz clic para volver ▼</small>
+                    </div>
+                </div>
+                
+                <div class="mt-3 text-center">
+                    <small class="text-muted">
+                        <i class="bi bi-arrow-repeat"></i> Haz clic en la tarjeta para voltear
+                    </small>
+                </div>
+                
+                <!-- Estadísticas de la flashcard -->
+                <div class="mt-4 p-3 bg-light rounded-3">
+                    <h6 class="mb-3">
+                        <i class="bi bi-bar-chart me-2"></i>
+                        Información de la flashcard
+                    </h6>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="small text-muted">Dificultad</div>
+                            <div class="fw-bold" id="statsDifficulty">-</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="small text-muted">Tiempo estudio</div>
+                            <div class="fw-bold" id="statsTime">-</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="small text-muted">Popularidad</div>
+                            <div class="fw-bold" id="statsPopularity">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Variables de estado
+let currentSection = 1;
+let selectedCategory = '';
+let selectedDifficulty = '';
+
+// Diccionario de sugerencias por categoría
+const categorySuggestions = {
+    'Saludos': ['Hola', 'Buenos días', 'Buenas tardes', 'Buenas noches', '¿Cómo estás?', 'Bien, gracias', 'Mucho gusto', 'Encantado'],
+    'Verbos': ['Correr', 'Comer', 'Dormir', 'Estudiar', 'Trabajar', 'Viajar', 'Cantar', 'Bailar', 'Leer', 'Escribir'],
+    'Sustantivos': ['Casa', 'Coche', 'Libro', 'Escuela', 'Familia', 'Amigo', 'Ciudad', 'País', 'Comida', 'Agua'],
+    'Adjetivos': ['Grande', 'Pequeño', 'Bonito', 'Feo', 'Feliz', 'Triste', 'Rápido', 'Lento', 'Nuevo', 'Viejo'],
+    'Conectores': ['Pero', 'Y', 'Porque', 'Aunque', 'Sin embargo', 'Además', 'Por lo tanto', 'No obstante'],
+    'Vocabulario': ['Computadora', 'Teléfono', 'Internet', 'Email', 'Documento', 'Archivo', 'Pantalla', 'Teclado']
+};
+
+// Cambiar de sección
+function nextSection() {
+    if (validateCurrentSection()) {
+        document.getElementById(`section${currentSection}`).style.display = 'none';
+        document.getElementById(`step${currentSection}`).classList.remove('active');
+        document.getElementById(`step${currentSection}`).classList.add('completed');
+        currentSection++;
+        document.getElementById(`section${currentSection}`).style.display = 'block';
+        document.getElementById(`step${currentSection}`).classList.add('active');
+        updateProgressBar();
+    }
+}
+
+function prevSection() {
+    document.getElementById(`section${currentSection}`).style.display = 'none';
+    document.getElementById(`step${currentSection}`).classList.remove('active');
+    currentSection--;
+    document.getElementById(`section${currentSection}`).style.display = 'block';
+    document.getElementById(`step${currentSection}`).classList.add('active');
+    updateProgressBar();
+}
+
+function updateProgressBar() {
+    const progress = (currentSection / 3) * 100;
+    document.getElementById('formProgressBar').style.width = `${progress}%`;
+}
+
+// Validar sección actual
+function validateCurrentSection() {
+    if (currentSection === 1) {
+        if (!selectedCategory) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Selecciona una categoría',
+                text: 'Por favor selecciona una categoría para la flashcard',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            return false;
+        }
+        if (!selectedDifficulty) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Selecciona una dificultad',
+                text: 'Por favor selecciona el nivel de dificultad',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            return false;
+        }
+        return true;
+    }
+    
+    if (currentSection === 2) {
+        const spanish = document.getElementById('spanish').value.trim();
+        const english = document.getElementById('english').value.trim();
+        
+        if (!spanish || !english) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Por favor completa la palabra en español y su traducción al inglés',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            return false;
+        }
+        return true;
+    }
+    
+    return true;
+}
+
+// Seleccionar categoría
+function selectCategory(category) {
+    selectedCategory = category;
+    document.getElementById('category').value = category;
+    
+    // Actualizar UI de categorías
+    document.querySelectorAll('.category-card').forEach(card => {
+        if (card.getAttribute('data-category') === category) {
+            card.classList.add('selected');
+        } else {
+            card.classList.remove('selected');
+        }
+    });
+    
+    updatePreview();
+    updateSuggestions(category);
+}
+
+// Seleccionar dificultad
+function selectDifficulty(difficulty) {
+    selectedDifficulty = difficulty;
+    document.getElementById('difficulty').value = difficulty;
+    
+    // Actualizar UI de dificultad
+    document.querySelectorAll('.difficulty-option').forEach(opt => {
+        if (opt.textContent.includes(difficulty === 'básico' ? 'Básico' : difficulty === 'intermedio' ? 'Intermedio' : 'Avanzado')) {
+            opt.classList.add('selected');
+        } else {
+            opt.classList.remove('selected');
+        }
+    });
+    
+    updatePreview();
+    updateStats();
+}
+
+// Actualizar sugerencias según categoría
+function updateSuggestions(category) {
+    const suggestions = categorySuggestions[category] || categorySuggestions['Vocabulario'];
+    const container = document.getElementById('suggestionsContainer');
+    
+    container.innerHTML = suggestions.map(word => `
+        <span class="suggestion-chip" onclick="useSuggestion('${word.replace(/'/g, "\\'")}')">
+            ${word}
+        </span>
+    `).join('');
+}
+
+// Usar sugerencia
+function useSuggestion(word) {
+    document.getElementById('spanish').value = word;
+    updatePreview();
+    
+    // Mostrar feedback
+    const chip = event.target;
+    chip.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+        chip.style.transform = '';
+    }, 200);
+}
+
+// Actualizar vista previa
+function updatePreview() {
+    // Frente de la tarjeta
+    const spanish = document.getElementById('spanish').value.trim() || '-';
+    document.getElementById('previewSpanish').textContent = spanish;
+    
+    // Categoría
+    const categoryBadge = document.getElementById('previewCategory');
+    if (selectedCategory) {
+        categoryBadge.textContent = selectedCategory;
+        categoryBadge.className = `badge bg-${getCategoryColor(selectedCategory)} mb-2`;
+    } else {
+        categoryBadge.textContent = 'Categoría';
+        categoryBadge.className = 'badge bg-secondary mb-2';
+    }
+    
+    // Reverso de la tarjeta
+    const english = document.getElementById('english').value.trim() || '-';
+    document.getElementById('previewEnglish').textContent = english;
+    
+    const example = document.getElementById('example').value.trim() || 'Sin ejemplo';
+    document.getElementById('previewExample').textContent = example;
+    
+    // Dificultad badge
+    const difficultyBadge = document.getElementById('previewDifficultyBadge');
+    if (selectedDifficulty) {
+        difficultyBadge.textContent = selectedDifficulty;
+        difficultyBadge.className = `badge difficulty-${selectedDifficulty}`;
+    } else {
+        difficultyBadge.textContent = 'Dificultad';
+        difficultyBadge.className = 'badge bg-secondary';
+    }
+    
+    updateStats();
+}
+
+// Obtener color para categoría
+function getCategoryColor(category) {
+    const colors = {
+        'Saludos': 'success',
+        'Verbos': 'warning',
+        'Sustantivos': 'info',
+        'Adjetivos': 'danger',
+        'Conectores': 'primary',
+        'Vocabulario': 'secondary'
+    };
+    return colors[category] || 'secondary';
+}
+
+// Actualizar estadísticas
+function updateStats() {
+    const difficultyMap = {
+        'básico': { text: '🟢 Fácil', time: '5 min', popularity: 'Alta' },
+        'intermedio': { text: '🟡 Media', time: '10 min', popularity: 'Media' },
+        'avanzado': { text: '🔴 Difícil', time: '15 min', popularity: 'Baja' }
+    };
+    
+    const stats = difficultyMap[selectedDifficulty] || { text: '-', time: '-', popularity: '-' };
+    
+    document.getElementById('statsDifficulty').innerHTML = stats.text;
+    document.getElementById('statsTime').textContent = stats.time;
+    document.getElementById('statsPopularity').textContent = stats.popularity;
+}
+
+// Voltear vista previa
+let isFlipped = false;
+function flipPreview() {
+    const preview = document.getElementById('flashcardPreview');
+    if (!isFlipped) {
+        preview.classList.add('flipped');
+    } else {
+        preview.classList.remove('flipped');
+    }
+    isFlipped = !isFlipped;
+}
+
+// Escuchar cambios en los campos
+document.getElementById('spanish').addEventListener('input', updatePreview);
+document.getElementById('english').addEventListener('input', updatePreview);
+document.getElementById('example').addEventListener('input', updatePreview);
+
+// Validación del formulario
+document.getElementById('flashcardForm').addEventListener('submit', function(e) {
+    if (!selectedCategory || !selectedDifficulty) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'error',
+            title: 'Campos incompletos',
+            text: 'Por favor selecciona una categoría y dificultad antes de guardar',
+            confirmButtonText: 'Entendido'
+        });
+    }
+});
+
+// Inicializar
+document.addEventListener('DOMContentLoaded', function() {
+    updatePreview();
+});
+</script>
+{% endblock %}

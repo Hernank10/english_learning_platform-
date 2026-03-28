@@ -1,0 +1,793 @@
+/* ========================================
+   ENGLISH LEARNING HUB - ESTILOS DE FLASHCARDS
+   Estilos específicos para la página de flashcards
+   ======================================== */
+
+/* ========================================
+   HEADER DE FLASHCARDS
+   ======================================== */
+.flashcards-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-radius: 0 0 30px 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.flashcards-header::before {
+    content: '🃏';
+    position: absolute;
+    font-size: 200px;
+    opacity: 0.05;
+    bottom: -50px;
+    right: -50px;
+    transform: rotate(-15deg);
+}
+
+.header-stats {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.header-score {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ========================================
+   SELECTOR DE MODO DE ESTUDIO
+   ======================================== */
+.study-mode-selector {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.mode-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background: white;
+    color: #4a5568;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.mode-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.mode-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* ========================================
+   FILTROS DE CATEGORÍA
+   ======================================== */
+.category-filters {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.category-filter {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.category-filter:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+.category-filter.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+}
+
+/* ========================================
+   CONTENEDOR DE FLASHCARDS (3D)
+   ======================================== */
+.flashcards-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 500px;
+    perspective: 1500px;
+    margin-bottom: 2rem;
+}
+
+.flashcard {
+    width: 100%;
+    max-width: 600px;
+    height: 400px;
+    position: relative;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.flashcard.flipped {
+    transform: rotateY(180deg);
+}
+
+/* Caras de la flashcard */
+.flashcard-front,
+.flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+
+.flashcard-front {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.flashcard-back {
+    background: white;
+    color: #2d3748;
+    transform: rotateY(180deg);
+}
+
+/* Badges en la flashcard */
+.card-category {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    backdrop-filter: blur(5px);
+}
+
+.card-difficulty {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.difficulty-basic {
+    background: #d4edda;
+    color: #155724;
+}
+
+.difficulty-intermediate {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.difficulty-advanced {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Contenido de la flashcard */
+.spanish-word {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 1rem 0;
+    line-height: 1.3;
+}
+
+.hint-text {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    margin-top: 1rem;
+}
+
+.english-word {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #667eea;
+}
+
+.example-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-top: 1rem;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+.flip-hint {
+    position: absolute;
+    bottom: 1rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+/* Botones en el reverso */
+.card-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.card-action-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-known {
+    background: #28a745;
+    color: white;
+}
+
+.btn-known:hover {
+    background: #218838;
+    transform: scale(1.05);
+}
+
+.btn-unknown {
+    background: #ffc107;
+    color: #2d3748;
+}
+
+.btn-unknown:hover {
+    background: #e0a800;
+    transform: scale(1.05);
+}
+
+/* ========================================
+   CONTROLES DE NAVEGACIÓN
+   ======================================== */
+.navigation-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.nav-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+}
+
+.nav-btn:hover {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+    transform: scale(1.1);
+}
+
+.nav-btn:active {
+    transform: scale(0.95);
+}
+
+/* ========================================
+   PROGRESO E INDICADORES
+   ======================================== */
+.progress-indicator {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.mastered-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #e9ecef;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    margin-left: 1rem;
+}
+
+/* ========================================
+   BOTONES DE ACCIÓN
+   ======================================== */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.action-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.action-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.action-btn-secondary {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.action-btn-secondary:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.action-btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.action-btn-danger:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+}
+
+/* ========================================
+   PANEL DE ESTADÍSTICAS
+   ======================================== */
+.stats-panel {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #667eea;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+/* ========================================
+   MODO ESTUDIO RÁPIDO
+   ======================================== */
+.quick-study {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+}
+
+.quick-study:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.quick-study-btn {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.quick-study-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+/* ========================================
+   ESTADO VACÍO
+   ======================================== */
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #cbd5e0;
+    margin-bottom: 1rem;
+}
+
+/* ========================================
+   ANIMACIONES
+   ======================================== */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.flashcard {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes successFlash {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4);
+    }
+    100% {
+        box-shadow: 0 0 0 20px rgba(40, 167, 69, 0);
+    }
+}
+
+.success-flash {
+    animation: successFlash 0.5s ease-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.shake-animation {
+    animation: shake 0.3s ease-in-out;
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(1.2);
+        opacity: 0;
+    }
+}
+
+.pulse-ring {
+    animation: pulse-ring 0.5s ease-out;
+}
+
+/* ========================================
+   FAVORITOS
+   ======================================== */
+.favorite-btn {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.favorite-btn.active {
+    color: #ffc107;
+}
+
+.favorite-btn:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* ========================================
+   MEDIA QUERIES
+   ======================================== */
+@media (max-width: 992px) {
+    .flashcard {
+        height: 380px;
+    }
+    
+    .spanish-word {
+        font-size: 1.8rem;
+    }
+    
+    .english-word {
+        font-size: 1.6rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .flashcards-header {
+        padding: 1.5rem 0;
+    }
+    
+    .header-stats {
+        margin-top: 1rem;
+    }
+    
+    .flashcard {
+        height: 350px;
+        max-width: 500px;
+    }
+    
+    .spanish-word {
+        font-size: 1.5rem;
+    }
+    
+    .english-word {
+        font-size: 1.3rem;
+    }
+    
+    .example-text {
+        font-size: 0.8rem;
+    }
+    
+    .card-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .card-action-btn {
+        justify-content: center;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .flashcard {
+        height: 320px;
+        max-width: 100%;
+    }
+    
+    .spanish-word {
+        font-size: 1.3rem;
+    }
+    
+    .english-word {
+        font-size: 1.1rem;
+    }
+    
+    .card-category,
+    .card-difficulty {
+        font-size: 0.65rem;
+    }
+    
+    .flip-hint {
+        font-size: 0.65rem;
+    }
+    
+    .study-mode-selector {
+        gap: 0.5rem;
+    }
+    
+    .mode-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .category-filter {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+    }
+}
+
+/* ========================================
+   MODO OSCURO
+   ======================================== */
+@media (prefers-color-scheme: dark) {
+    .mode-btn {
+        background: #2d3748;
+        color: #e2e8f0;
+    }
+    
+    .category-filter {
+        background: #2d3748;
+        border-color: #4a5568;
+        color: #e2e8f0;
+    }
+    
+    .category-filter:hover {
+        background: #4a5568;
+    }
+    
+    .flashcard-back {
+        background: #2d3748;
+        color: #f7fafc;
+    }
+    
+    .english-word {
+        color: #8ac926;
+    }
+    
+    .example-text {
+        color: #a0aec0;
+    }
+    
+    .stats-panel {
+        background: #2d3748;
+    }
+    
+    .stat-card {
+        background: #1a202c;
+    }
+    
+    .stat-value {
+        color: #8ac926;
+    }
+    
+    .stat-label {
+        color: #a0aec0;
+    }
+    
+    .quick-study {
+        background: #1a202c;
+    }
+    
+    .empty-state {
+        background: #2d3748;
+    }
+    
+    .action-btn-secondary {
+        background: #2d3748;
+        border-color: #667eea;
+        color: #f7fafc;
+    }
+    
+    .action-btn-secondary:hover {
+        background: #667eea;
+    }
+    
+    .progress-indicator {
+        color: #a0aec0;
+    }
+    
+    .mastered-counter {
+        background: #1a202c;
+        color: #e2e8f0;
+    }
+    
+    .nav-btn {
+        background: #2d3748;
+        border-color: #4a5568;
+        color: #e2e8f0;
+    }
+    
+    .nav-btn:hover {
+        background: #667eea;
+        border-color: #667eea;
+    }
+}
+
+/* ========================================
+   UTILIDADES ADICIONALES
+   ======================================== */
+.text-muted {
+    color: #6c757d !important;
+}
+
+.bg-primary-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.shadow-hover {
+    transition: all 0.3s ease;
+}
+
+.shadow-hover:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    transform: translateY(-3px);
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.transition-all {
+    transition: all 0.3s ease;
+}

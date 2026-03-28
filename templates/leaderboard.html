@@ -1,0 +1,493 @@
+{% extends "base.html" %}
+
+{% block title %}Ranking - English Learning Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos del ranking */
+    .leaderboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 30px 30px;
+    }
+    
+    /* Selector de período */
+    .period-selector {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .period-btn {
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        border: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: white;
+        color: #4a5568;
+    }
+    
+    .period-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Tabla de ranking */
+    .ranking-table-container {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+    
+    .ranking-table {
+        width: 100%;
+        margin-bottom: 0;
+    }
+    
+    .ranking-table th {
+        background: #f8f9fa;
+        padding: 1rem;
+        font-weight: 600;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .ranking-table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .ranking-table tr {
+        transition: all 0.3s ease;
+    }
+    
+    .ranking-table tr:hover {
+        background: #f8f9fa;
+        transform: translateX(5px);
+    }
+    
+    /* Posiciones */
+    .rank-position {
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .rank-1 {
+        background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    
+    .rank-2 {
+        background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    
+    .rank-3 {
+        background: linear-gradient(135deg, #cd7f32 0%, #b87333 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    
+    /* Avatar de usuario */
+    .user-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-right: 0.75rem;
+    }
+    
+    /* Medallas */
+    .medal-icon {
+        font-size: 1.3rem;
+    }
+    
+    /* Estadísticas del usuario actual */
+    .user-stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .user-stats-card::before {
+        content: '👑';
+        position: absolute;
+        font-size: 80px;
+        opacity: 0.1;
+        bottom: -20px;
+        right: 10px;
+    }
+    
+    /* Top 3 destacados */
+    .top-three {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 2rem;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+    }
+    
+    .podium-card {
+        text-align: center;
+        flex: 1;
+        max-width: 200px;
+        transition: all 0.3s ease;
+    }
+    
+    .podium-card:hover {
+        transform: translateY(-10px);
+    }
+    
+    .podium-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    .podium-1 .podium-avatar {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+        color: white;
+    }
+    
+    .podium-2 .podium-avatar {
+        background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%);
+        color: white;
+    }
+    
+    .podium-3 .podium-avatar {
+        background: linear-gradient(135deg, #cd7f32 0%, #b87333 100%);
+        color: white;
+    }
+    
+    .podium-name {
+        font-weight: bold;
+        margin-top: 0.5rem;
+    }
+    
+    .podium-score {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    /* Animaciones */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .ranking-table tr {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    /* Modo oscuro */
+    @media (prefers-color-scheme: dark) {
+        .period-btn {
+            background: #2d3748;
+            color: #e2e8f0;
+        }
+        
+        .ranking-table-container {
+            background: #2d3748;
+        }
+        
+        .ranking-table th {
+            background: #1a202c;
+            color: #e2e8f0;
+            border-color: #4a5568;
+        }
+        
+        .ranking-table td {
+            color: #f7fafc;
+        }
+        
+        .ranking-table tr:hover {
+            background: #1a202c;
+        }
+        
+        .podium-score {
+            color: #a0aec0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="leaderboard-header">
+    <div class="container">
+        <div class="text-center">
+            <h1 class="display-5 fw-bold mb-2">
+                <i class="bi bi-trophy-fill me-2"></i>
+                Ranking de Estudiantes
+            </h1>
+            <p class="lead mb-0">Los mejores estudiantes de la plataforma</p>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <!-- Selector de período -->
+    <div class="period-selector">
+        <button class="period-btn active" onclick="changePeriod('all')">
+            <i class="bi bi-calendar3"></i> Todo el tiempo
+        </button>
+        <button class="period-btn" onclick="changePeriod('month')">
+            <i class="bi bi-calendar-month"></i> Este mes
+        </button>
+        <button class="period-btn" onclick="changePeriod('week')">
+            <i class="bi bi-calendar-week"></i> Esta semana
+        </button>
+        <button class="period-btn" onclick="changePeriod('today')">
+            <i class="bi bi-calendar-day"></i> Hoy
+        </button>
+    </div>
+    
+    <!-- Top 3 destacados -->
+    <div class="top-three" id="topThree">
+        <!-- Se llenará dinámicamente -->
+    </div>
+    
+    <!-- Tabla de ranking -->
+    <div class="ranking-table-container">
+        <table class="ranking-table">
+            <thead>
+                <tr>
+                    <th style="width: 10%">Posición</th>
+                    <th style="width: 35%">Usuario</th>
+                    <th style="width: 20%">Nivel</th>
+                    <th style="width: 20%">Puntos</th>
+                    <th style="width: 15%">Logros</th>
+                </tr>
+            </thead>
+            <tbody id="rankingBody">
+                <!-- Se llenará dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Estadísticas del usuario actual -->
+    <div class="user-stats-card" id="userStats">
+        <div class="row align-items-center">
+            <div class="col-md-4 text-center text-md-start">
+                <div class="user-avatar" style="width: 60px; height: 60px; font-size: 1.5rem; margin: 0 auto;">
+                    {{ current_user.username[0].upper() }}
+                </div>
+                <h5 class="mt-2">{{ current_user.username }}</h5>
+            </div>
+            <div class="col-md-8">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="display-6" id="userRank">#0</div>
+                        <small>Tu posición</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="display-6" id="userScore">{{ current_user.total_score }}</div>
+                        <small>Tus puntos</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="display-6" id="userLevel">{{ current_user.level }}</div>
+                        <small>Tu nivel</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Datos de usuarios desde el backend
+let users = {{ top_users | tojson }};
+let currentPeriod = 'all';
+let currentUser = {{ current_user | tojson }};
+
+// Función para cambiar período
+function changePeriod(period) {
+    currentPeriod = period;
+    
+    // Actualizar botones
+    document.querySelectorAll('.period-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Filtrar y mostrar ranking
+    filterRanking(period);
+}
+
+// Filtrar ranking por período
+function filterRanking(period) {
+    // Simular filtrado - en producción vendría del backend
+    let filteredUsers = [...users];
+    
+    if (period === 'today') {
+        filteredUsers = filteredUsers.slice(0, 10);
+    } else if (period === 'week') {
+        filteredUsers = filteredUsers.slice(0, 20);
+    } else if (period === 'month') {
+        filteredUsers = filteredUsers.slice(0, 30);
+    }
+    
+    renderRanking(filteredUsers);
+    renderTopThree(filteredUsers.slice(0, 3));
+    updateUserStats(filteredUsers);
+}
+
+// Renderizar tabla de ranking
+function renderRanking(usersList) {
+    const tbody = document.getElementById('rankingBody');
+    
+    if (usersList.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                    <p class="mt-2">No hay datos para mostrar en este período</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = usersList.map((user, index) => {
+        const rank = index + 1;
+        let rankClass = '';
+        let rankIcon = '';
+        
+        if (rank === 1) {
+            rankClass = 'rank-1';
+            rankIcon = '🥇';
+        } else if (rank === 2) {
+            rankClass = 'rank-2';
+            rankIcon = '🥈';
+        } else if (rank === 3) {
+            rankClass = 'rank-3';
+            rankIcon = '🥉';
+        }
+        
+        return `
+            <tr>
+                <td>
+                    <div class="rank-position ${rankClass}">
+                        ${rankIcon} #${rank}
+                    </div>
+                </td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="user-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                        <div>
+                            <div class="fw-bold">${escapeHtml(user.username)}</div>
+                            <small class="text-muted">${user.email}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge bg-primary">Nivel ${user.level}</span>
+                </td>
+                <td>
+                    <span class="fw-bold text-warning">${user.total_score}</span> pts
+                </td>
+                <td>
+                    <div class="d-flex gap-1">
+                        ${user.stars ? `<span class="badge bg-warning">${'⭐'.repeat(Math.min(user.stars, 5))}</span>` : ''}
+                        ${user.medals ? `<span class="badge bg-info">🏅 ${user.medals.length}</span>` : ''}
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Renderizar top 3 destacados
+function renderTopThree(topUsers) {
+    const container = document.getElementById('topThree');
+    const positions = ['first', 'second', 'third'];
+    
+    if (topUsers.length < 3) {
+        container.innerHTML = '<div class="text-center py-4">No hay suficientes usuarios para mostrar el podio</div>';
+        return;
+    }
+    
+    // Reordenar para podio: 2do, 1ro, 3ro
+    const podium = [topUsers[1], topUsers[0], topUsers[2]];
+    const podiumClasses = ['podium-2', 'podium-1', 'podium-3'];
+    const podiumIcons = ['🥈', '🥇', '🥉'];
+    
+    container.innerHTML = podium.map((user, idx) => `
+        <div class="podium-card ${podiumClasses[idx]}">
+            <div class="podium-avatar">
+                ${user.username.charAt(0).toUpperCase()}
+            </div>
+            <div class="podium-name">${escapeHtml(user.username)}</div>
+            <div class="podium-score">${user.total_score} pts</div>
+            <div class="medal-icon mt-2">${podiumIcons[idx]}</div>
+        </div>
+    `).join('');
+}
+
+// Actualizar estadísticas del usuario actual
+function updateUserStats(usersList) {
+    const userRank = usersList.findIndex(u => u.id === currentUser.id) + 1;
+    const rankDisplay = userRank > 0 ? `#${userRank}` : '#--';
+    
+    document.getElementById('userRank').textContent = rankDisplay;
+    document.getElementById('userScore').textContent = currentUser.total_score;
+    document.getElementById('userLevel').textContent = currentUser.level;
+}
+
+// Escapar HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Inicializar ranking
+function initRanking() {
+    renderRanking(users);
+    renderTopThree(users.slice(0, 3));
+    updateUserStats(users);
+}
+
+// Inicializar
+initRanking();
+</script>
+{% endblock %}

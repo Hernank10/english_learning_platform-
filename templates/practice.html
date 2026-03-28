@@ -1,0 +1,698 @@
+{% extends "base.html" %}
+
+{% block title %}Práctica - {{ module|replace('-', ' ')|title }} | English Learning Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos de la página de práctica */
+    .practice-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 30px 30px;
+    }
+    
+    .exercise-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+    
+    .exercise-header {
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .difficulty-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .difficulty-basic { background: #d4edda; color: #155724; }
+    .difficulty-intermediate { background: #fff3cd; color: #856404; }
+    .difficulty-advanced { background: #f8d7da; color: #721c24; }
+    
+    .exercise-instruction {
+        font-size: 1.1rem;
+        color: #4a5568;
+        margin-bottom: 1rem;
+    }
+    
+    .spanish-sentence {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        font-size: 1.2rem;
+        text-align: center;
+        border-left: 4px solid #667eea;
+        margin-bottom: 1.5rem;
+    }
+    
+    .answer-area {
+        margin-bottom: 1.5rem;
+    }
+    
+    .answer-input {
+        width: 100%;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .answer-input:focus {
+        border-color: #667eea;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .feedback-area {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-top: 1rem;
+        display: none;
+    }
+    
+    .feedback-correct {
+        background: #d4edda;
+        border-left: 4px solid #28a745;
+        color: #155724;
+    }
+    
+    .feedback-incorrect {
+        background: #f8d7da;
+        border-left: 4px solid #dc3545;
+        color: #721c24;
+    }
+    
+    .feedback-info {
+        background: #d1ecf1;
+        border-left: 4px solid #17a2b8;
+        color: #0c5460;
+    }
+    
+    /* Estadísticas en tiempo real */
+    .stats-sidebar {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        position: sticky;
+        top: 20px;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    
+    .streak-fire {
+        animation: flame 0.5s ease-in-out infinite alternate;
+    }
+    
+    @keyframes flame {
+        from { text-shadow: 0 0 5px #ff9d59; }
+        to { text-shadow: 0 0 20px #ff595e; }
+    }
+    
+    /* Barra de progreso */
+    .progress-container {
+        margin-bottom: 1.5rem;
+    }
+    
+    .progress {
+        height: 8px;
+        border-radius: 10px;
+        background: #e2e8f0;
+    }
+    
+    .progress-bar {
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 10px;
+        transition: width 0.3s ease;
+    }
+    
+    /* Animaciones */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .pulse-animation {
+        animation: pulse 0.5s ease-in-out;
+    }
+    
+    @keyframes confetti {
+        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+    }
+    
+    .confetti {
+        position: fixed;
+        pointer-events: none;
+        z-index: 1000;
+        animation: confetti 1.5s ease-out forwards;
+    }
+    
+    /* Botones */
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-outline-custom {
+        border: 2px solid #e2e8f0;
+        background: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-custom:hover {
+        border-color: #667eea;
+        color: #667eea;
+    }
+    
+    /* Modo oscuro */
+    @media (prefers-color-scheme: dark) {
+        .exercise-card, .stats-sidebar {
+            background: #2d3748;
+            color: #f7fafc;
+        }
+        
+        .exercise-instruction {
+            color: #e2e8f0;
+        }
+        
+        .spanish-sentence {
+            background: #1a202c;
+        }
+        
+        .stat-item {
+            background: #1a202c;
+        }
+        
+        .answer-input {
+            background: #1a202c;
+            border-color: #4a5568;
+            color: #f7fafc;
+        }
+        
+        .btn-outline-custom {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #f7fafc;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="practice-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="bi bi-journal-bookmark-fill me-2"></i>
+                    Práctica: {{ module|replace('-', ' ')|title }}
+                </h1>
+                <p class="lead mb-0">Mejora tu inglés con ejercicios interactivos</p>
+            </div>
+            <div>
+                <div class="d-flex gap-2">
+                    <div class="bg-white rounded-3 px-3 py-2 text-dark">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <span id="scoreDisplay">0</span> pts
+                    </div>
+                    <div class="bg-white rounded-3 px-3 py-2 text-dark">
+                        <i class="bi bi-fire text-danger streak-fire"></i>
+                        <span id="streakDisplay">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row">
+        <!-- Área principal de ejercicio -->
+        <div class="col-lg-8">
+            <div class="exercise-card">
+                <div class="exercise-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-primary me-2" id="exerciseType">Ejercicio</span>
+                        <span class="difficulty-badge" id="difficultyBadge">Dificultad</span>
+                    </div>
+                    <div>
+                        <span class="text-muted" id="exerciseCounter">Ejercicio 1 / {{ exercises|length }}</span>
+                    </div>
+                </div>
+                
+                <div class="exercise-instruction" id="exerciseInstruction">
+                    Cargando ejercicio...
+                </div>
+                
+                <div class="spanish-sentence" id="spanishSentence">
+                    -
+                </div>
+                
+                <div class="answer-area">
+                    <textarea class="answer-input" id="answerInput" rows="3" 
+                              placeholder="Escribe tu respuesta en inglés aquí..."></textarea>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button class="btn-primary-custom" id="submitBtn" onclick="checkAnswer()">
+                        <i class="bi bi-check-circle me-2"></i>Verificar
+                    </button>
+                    <button class="btn-outline-custom" id="hintBtn" onclick="showHint()">
+                        <i class="bi bi-lightbulb me-2"></i>Pista
+                    </button>
+                    <button class="btn-outline-custom" id="skipBtn" onclick="nextExercise()">
+                        <i class="bi bi-skip-forward me-2"></i>Saltar
+                    </button>
+                </div>
+                
+                <div class="feedback-area" id="feedbackArea">
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="bi bi-info-circle-fill fs-4"></i>
+                        <div>
+                            <h6 id="feedbackTitle" class="mb-1">Feedback</h6>
+                            <p id="feedbackMessage" class="mb-0">Aquí aparecerá la retroalimentación</p>
+                            <small id="feedbackHint" class="text-muted"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navegación entre ejercicios -->
+            <div class="d-flex justify-content-between mt-3">
+                <button class="btn-outline-custom" onclick="previousExercise()" id="prevBtn" disabled>
+                    <i class="bi bi-arrow-left me-2"></i>Anterior
+                </button>
+                <button class="btn-outline-custom" onclick="nextExercise()" id="nextBtn">
+                    Siguiente<i class="bi bi-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Barra lateral de estadísticas -->
+        <div class="col-lg-4">
+            <div class="stats-sidebar">
+                <h5 class="mb-3">
+                    <i class="bi bi-graph-up me-2 text-primary"></i>
+                    Tu Progreso
+                </h5>
+                
+                <div class="stat-item">
+                    <i class="bi bi-check-circle-fill text-success fs-3"></i>
+                    <div class="stat-number" id="completedCount">0</div>
+                    <small>Ejercicios completados</small>
+                </div>
+                
+                <div class="stat-item">
+                    <i class="bi bi-star-fill text-warning fs-3"></i>
+                    <div class="stat-number" id="totalScore">0</div>
+                    <small>Puntos totales</small>
+                </div>
+                
+                <div class="stat-item">
+                    <i class="bi bi-fire text-danger fs-3 streak-fire"></i>
+                    <div class="stat-number" id="currentStreak">0</div>
+                    <small>Racha actual 🔥</small>
+                </div>
+                
+                <div class="stat-item">
+                    <i class="bi bi-trophy-fill text-primary fs-3"></i>
+                    <div class="stat-number" id="maxStreak">0</div>
+                    <small>Racha máxima</small>
+                </div>
+                
+                <div class="progress-container mt-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>Progreso del módulo</small>
+                        <small id="progressPercent">0%</small>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" id="moduleProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="text-center">
+                    <small class="text-muted">
+                        <i class="bi bi-lightbulb"></i> Consejo: Mantén una racha para ganar puntos extra
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Datos de ejercicios desde el backend
+const exercises = {{ exercises | tojson }};
+const moduleName = "{{ module }}";
+
+// Estado del juego
+let currentIndex = 0;
+let score = 0;
+let streak = 0;
+let maxStreak = 0;
+let completed = new Array(exercises.length).fill(false);
+let hintsUsed = 0;
+
+// Elementos DOM
+const answerInput = document.getElementById('answerInput');
+const submitBtn = document.getElementById('submitBtn');
+const hintBtn = document.getElementById('hintBtn');
+const skipBtn = document.getElementById('skipBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const feedbackArea = document.getElementById('feedbackArea');
+const feedbackTitle = document.getElementById('feedbackTitle');
+const feedbackMessage = document.getElementById('feedbackMessage');
+const feedbackHint = document.getElementById('feedbackHint');
+
+// Cargar ejercicio actual
+function loadExercise() {
+    const exercise = exercises[currentIndex];
+    if (!exercise) return;
+    
+    document.getElementById('exerciseType').textContent = exercise.type;
+    document.getElementById('difficultyBadge').textContent = exercise.difficulty;
+    document.getElementById('difficultyBadge').className = `difficulty-badge difficulty-${exercise.difficulty}`;
+    document.getElementById('exerciseInstruction').textContent = exercise.instruction;
+    document.getElementById('spanishSentence').textContent = exercise.spanish;
+    document.getElementById('exerciseCounter').textContent = `Ejercicio ${currentIndex + 1} / ${exercises.length}`;
+    
+    answerInput.value = '';
+    answerInput.disabled = false;
+    submitBtn.disabled = false;
+    hintBtn.disabled = false;
+    
+    // Ocultar feedback
+    feedbackArea.style.display = 'none';
+    feedbackArea.className = 'feedback-area';
+    
+    // Actualizar botones de navegación
+    prevBtn.disabled = currentIndex === 0;
+    nextBtn.disabled = currentIndex === exercises.length - 1;
+    
+    // Si ya está completado, mostrar mensaje
+    if (completed[currentIndex]) {
+        showFeedback('Ejercicio completado', 'Ya has respondido correctamente este ejercicio', 'info');
+        answerInput.disabled = true;
+        submitBtn.disabled = true;
+    }
+}
+
+// Verificar respuesta
+async function checkAnswer() {
+    const answer = answerInput.value.trim();
+    if (!answer) {
+        showFeedback('Respuesta vacía', 'Por favor escribe una respuesta', 'warning');
+        return;
+    }
+    
+    const exercise = exercises[currentIndex];
+    const isCorrect = answer.toLowerCase() === exercise.correct_answer.toLowerCase();
+    
+    if (isCorrect && !completed[currentIndex]) {
+        // Respuesta correcta
+        const pointsEarned = exercise.points + (streak * 2);
+        score += pointsEarned;
+        streak++;
+        if (streak > maxStreak) maxStreak = streak;
+        completed[currentIndex] = true;
+        
+        // Actualizar UI
+        updateStats();
+        showFeedback('¡Correcto!', `+${pointsEarned} puntos (${exercise.points} base + ${streak-1 * 2} por racha)`, 'correct');
+        
+        // Efectos de celebración
+        createConfetti();
+        
+        // Reproducir sonido de éxito
+        playSound('correct');
+        
+        // Deshabilitar botones
+        answerInput.disabled = true;
+        submitBtn.disabled = true;
+        hintBtn.disabled = true;
+        
+        // Auto-avanzar después de 1.5 segundos
+        setTimeout(() => {
+            if (currentIndex < exercises.length - 1) {
+                nextExercise();
+            } else {
+                showCompletionModal();
+            }
+        }, 1500);
+        
+        // Guardar progreso en el backend
+        saveProgress();
+        
+    } else if (isCorrect && completed[currentIndex]) {
+        showFeedback('Ya completado', 'Ya has respondido correctamente este ejercicio', 'info');
+    } else {
+        // Respuesta incorrecta
+        streak = 0;
+        updateStats();
+        showFeedback('Incorrecto', `La respuesta correcta es: "${exercise.correct_answer}"`, 'incorrect');
+        playSound('incorrect');
+        
+        // Mostrar pista automáticamente después de 2 intentos
+        const attempts = getAttempts(currentIndex);
+        if (attempts >= 1) {
+            showHint();
+        }
+    }
+}
+
+// Mostrar pista
+function showHint() {
+    const exercise = exercises[currentIndex];
+    hintsUsed++;
+    showFeedback('Pista', exercise.hint, 'info');
+    playSound('hint');
+}
+
+// Mostrar feedback
+function showFeedback(title, message, type) {
+    feedbackTitle.textContent = title;
+    feedbackMessage.textContent = message;
+    
+    feedbackArea.className = `feedback-area feedback-${type}`;
+    feedbackArea.style.display = 'block';
+    
+    // Scroll suave al feedback
+    feedbackArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Navegación
+function nextExercise() {
+    if (currentIndex < exercises.length - 1) {
+        currentIndex++;
+        loadExercise();
+    } else {
+        showCompletionModal();
+    }
+}
+
+function previousExercise() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        loadExercise();
+    }
+}
+
+// Actualizar estadísticas
+function updateStats() {
+    const completedCount = completed.filter(c => c === true).length;
+    const totalPoints = score;
+    
+    document.getElementById('scoreDisplay').textContent = score;
+    document.getElementById('streakDisplay').textContent = streak;
+    document.getElementById('completedCount').textContent = completedCount;
+    document.getElementById('totalScore').textContent = totalPoints;
+    document.getElementById('currentStreak').textContent = streak;
+    document.getElementById('maxStreak').textContent = maxStreak;
+    
+    const progressPercent = (completedCount / exercises.length) * 100;
+    document.getElementById('progressPercent').textContent = `${Math.round(progressPercent)}%`;
+    document.getElementById('moduleProgress').style.width = `${progressPercent}%`;
+}
+
+// Guardar progreso en el backend
+async function saveProgress() {
+    try {
+        const response = await fetch('/api/save_progress', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                module: moduleName,
+                completed: completed,
+                score: score,
+                max_streak: maxStreak,
+                hints_used: hintsUsed
+            })
+        });
+        
+        if (!response.ok) {
+            console.error('Error saving progress');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Obtener intentos del ejercicio
+function getAttempts(index) {
+    // Simulación - en producción vendría del backend
+    return 0;
+}
+
+// Crear efecto de confeti
+function createConfetti() {
+    const colors = ['#ff595e', '#ff9d59', '#ffd459', '#8ac926', '#1982c4', '#6a4c93'];
+    
+    for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * window.innerWidth + 'px';
+        confetti.style.top = '-10px';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.width = Math.random() * 10 + 5 + 'px';
+        confetti.style.height = confetti.style.width;
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        
+        document.body.appendChild(confetti);
+        
+        setTimeout(() => confetti.remove(), 1500);
+    }
+}
+
+// Reproducir sonido
+function playSound(type) {
+    // Usar Web Audio API para sonidos simples
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    if (type === 'correct') {
+        oscillator.frequency.value = 523.25; // Do
+    } else if (type === 'incorrect') {
+        oscillator.frequency.value = 392.00; // Sol
+    } else if (type === 'hint') {
+        oscillator.frequency.value = 440.00; // La
+    }
+    
+    gainNode.gain.value = 0.1;
+    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
+    
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.3);
+}
+
+// Mostrar modal de finalización
+function showCompletionModal() {
+    const completedCount = completed.filter(c => c === true).length;
+    const accuracy = Math.round((completedCount / exercises.length) * 100);
+    
+    Swal.fire({
+        title: '🎉 ¡Módulo Completado!',
+        html: `
+            <div class="text-center">
+                <p>Has completado el módulo <strong>{{ module|replace('-', ' ')|title }}</strong></p>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <div class="display-6 text-primary">${score}</div>
+                        <small>Puntos totales</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="display-6 text-warning">${accuracy}%</div>
+                        <small>Precisión</small>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <div class="display-6 text-danger">${maxStreak}</div>
+                        <small>Racha máxima 🔥</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="display-6 text-info">${hintsUsed}</div>
+                        <small>Pistas usadas</small>
+                    </div>
+                </div>
+            </div>
+        `,
+        icon: 'success',
+        confirmButtonText: 'Volver al Dashboard',
+        confirmButtonColor: '#667eea',
+        showCancelButton: true,
+        cancelButtonText: 'Seguir practicando',
+        cancelButtonColor: '#6c757d'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "{{ url_for('dashboard') }}";
+        } else {
+            window.location.reload();
+        }
+    });
+}
+
+// Tecla Enter para enviar respuesta
+answerInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (submitBtn.disabled) return;
+        checkAnswer();
+    }
+});
+
+// Inicializar
+loadExercise();
+updateStats();
+</script>
+{% endblock %}

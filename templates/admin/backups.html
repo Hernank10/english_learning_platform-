@@ -1,0 +1,792 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Gestión de Respaldo | English Learning Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos de gestión de respaldos */
+    .backups-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 30px 30px;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-box {
+        background: white;
+        border-radius: 15px;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    
+    /* Tarjetas de respaldo */
+    .backup-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        margin-bottom: 1rem;
+    }
+    
+    .backup-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .backup-header {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .backup-body {
+        padding: 1rem;
+    }
+    
+    .backup-footer {
+        background: #f8f9fa;
+        padding: 0.75rem 1rem;
+        border-top: 1px solid #dee2e6;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+    
+    .backup-icon {
+        font-size: 2rem;
+        color: #667eea;
+    }
+    
+    /* Programación de respaldos */
+    .schedule-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Comparación de datos */
+    .comparison-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-top: 1rem;
+    }
+    
+    .comparison-header {
+        background: #667eea;
+        color: white;
+        padding: 1rem;
+    }
+    
+    .diff-added {
+        background: #d4edda;
+        color: #155724;
+        padding: 0.25rem 0.5rem;
+        border-radius: 5px;
+    }
+    
+    .diff-removed {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 0.25rem 0.5rem;
+        border-radius: 5px;
+    }
+    
+    .diff-modified {
+        background: #fff3cd;
+        color: #856404;
+        padding: 0.25rem 0.5rem;
+        border-radius: 5px;
+    }
+    
+    /* Animaciones */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .backup-card {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    /* Modo oscuro */
+    @media (prefers-color-scheme: dark) {
+        .stat-box, .backup-card, .schedule-card, .comparison-card {
+            background: #2d3748;
+            color: #f7fafc;
+        }
+        
+        .backup-header, .backup-footer {
+            background: #1a202c;
+            border-color: #4a5568;
+        }
+        
+        .diff-added {
+            background: #155724;
+            color: #d4edda;
+        }
+        
+        .diff-removed {
+            background: #721c24;
+            color: #f8d7da;
+        }
+        
+        .diff-modified {
+            background: #856404;
+            color: #fff3cd;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="backups-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="bi bi-archive-fill me-2"></i>
+                    Gestión de Respaldo
+                </h1>
+                <p class="lead mb-0">Administra los backups de la plataforma</p>
+            </div>
+            <div>
+                <button class="btn btn-light btn-lg me-2" onclick="createBackup()">
+                    <i class="bi bi-plus-circle me-2"></i>Crear Respaldo
+                </button>
+                <button class="btn btn-outline-light btn-lg" onclick="openScheduleModal()">
+                    <i class="bi bi-clock me-2"></i>Programar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <!-- Estadísticas rápidas -->
+    <div class="stats-grid">
+        <div class="stat-box">
+            <i class="bi bi-archive-fill fs-2 text-primary"></i>
+            <div class="stat-number" id="total-backups">{{ backups|length }}</div>
+            <small>Respaldo totales</small>
+        </div>
+        <div class="stat-box">
+            <i class="bi bi-hdd-stack fs-2 text-success"></i>
+            <div class="stat-number" id="total-size">{{ total_size }}</div>
+            <small>Espacio total</small>
+        </div>
+        <div class="stat-box">
+            <i class="bi bi-calendar-week fs-2 text-warning"></i>
+            <div class="stat-number" id="last-backup">{{ last_backup_date }}</div>
+            <small>Último respaldo</small>
+        </div>
+        <div class="stat-box">
+            <i class="bi bi-cloud-upload fs-2 text-info"></i>
+            <div class="stat-number" id="next-backup">{{ next_backup }}</div>
+            <small>Próximo respaldo</small>
+        </div>
+    </div>
+
+    <!-- Programación de respaldos -->
+    <div class="schedule-card" id="scheduleCard">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">
+                <i class="bi bi-clock-history me-2"></i>
+                Programación Automática
+            </h5>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="autoBackupToggle" 
+                       {% if auto_backup_enabled %}checked{% endif %} onchange="toggleAutoBackup()">
+                <label class="form-check-label" for="autoBackupToggle">
+                    Respaldos automáticos
+                </label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <label class="form-label small">Frecuencia</label>
+                <select class="form-select form-select-sm" id="backupFrequency" {% if not auto_backup_enabled %}disabled{% endif %}>
+                    <option value="daily" {% if backup_frequency == 'daily' %}selected{% endif %}>Diario</option>
+                    <option value="weekly" {% if backup_frequency == 'weekly' %}selected{% endif %}>Semanal</option>
+                    <option value="monthly" {% if backup_frequency == 'monthly' %}selected{% endif %}>Mensual</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small">Hora (UTC)</label>
+                <input type="time" class="form-control form-control-sm" id="backupTime" value="{{ backup_time }}" 
+                       {% if not auto_backup_enabled %}disabled{% endif %}>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small">Retención máxima</label>
+                <select class="form-select form-select-sm" id="backupRetention" {% if not auto_backup_enabled %}disabled{% endif %}>
+                    <option value="7" {% if backup_retention == 7 %}selected{% endif %}>7 días</option>
+                    <option value="30" {% if backup_retention == 30 %}selected{% endif %}>30 días</option>
+                    <option value="90" {% if backup_retention == 90 %}selected{% endif %}>90 días</option>
+                    <option value="365" {% if backup_retention == 365 %}selected{% endif %}>1 año</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-3" id="scheduleActions" {% if not auto_backup_enabled %}style="display: none;"{% endif %}>
+            <button class="btn btn-sm btn-primary" onclick="saveSchedule()">
+                <i class="bi bi-save"></i> Guardar configuración
+            </button>
+        </div>
+    </div>
+
+    <!-- Lista de respaldos -->
+    <div class="mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>
+                <i class="bi bi-files me-2"></i>
+                Archivos de Respaldo
+            </h4>
+            <div class="btn-group">
+                <button class="btn btn-outline-secondary btn-sm" onclick="filterBackups('all')">
+                    Todos
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="filterBackups('exercises')">
+                    Ejercicios
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="filterBackups('flashcards')">
+                    Flashcards
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="filterBackups('users')">
+                    Usuarios
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="filterBackups('full')">
+                    Completos
+                </button>
+            </div>
+        </div>
+
+        <div id="backupsList">
+            {% for backup in backups %}
+            <div class="backup-card" data-type="{{ backup.type }}">
+                <div class="backup-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-{{ backup.icon }} backup-icon"></i>
+                        <div>
+                            <h6 class="mb-0">{{ backup.filename }}</h6>
+                            <small class="text-muted">{{ backup.type_display }}</small>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="small text-muted">{{ backup.size }}</div>
+                        <div class="small">{{ backup.created_at }}</div>
+                    </div>
+                </div>
+                <div class="backup-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="small">
+                                <i class="bi bi-database"></i> Registros: {{ backup.records }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="small">
+                                <i class="bi bi-hdd-stack"></i> Tamaño: {{ backup.size }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="backup-footer">
+                    <button class="btn btn-sm btn-outline-info" onclick="viewBackupDetails('{{ backup.id }}')">
+                        <i class="bi bi-eye"></i> Detalles
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="compareBackup('{{ backup.id }}')">
+                        <i class="bi bi-git-compare"></i> Comparar
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning" onclick="restoreBackup('{{ backup.id }}')">
+                        <i class="bi bi-arrow-repeat"></i> Restaurar
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteBackup('{{ backup.id }}')">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                    <button class="btn btn-sm btn-outline-success" onclick="downloadBackup('{{ backup.id }}')">
+                        <i class="bi bi-download"></i> Descargar
+                    </button>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted"></i>
+                <p class="mt-2">No hay respaldos disponibles</p>
+                <button class="btn btn-primary mt-2" onclick="createBackup()">
+                    <i class="bi bi-plus-circle"></i> Crear primer respaldo
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de detalles de respaldo -->
+<div class="modal fade" id="backupDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-file-text me-2"></i>
+                    Detalles del Respaldo
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="backupDetailsContent">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de comparación -->
+<div class="modal fade" id="compareModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-git-compare me-2"></i>
+                    Comparación de Respaldos
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="compareContent">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de programación -->
+<div class="modal fade" id="scheduleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-clock me-2"></i>
+                    Programar Respaldo
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Tipo de respaldo</label>
+                    <select class="form-select" id="scheduleType">
+                        <option value="full">Completo (todo)</option>
+                        <option value="exercises">Solo ejercicios</option>
+                        <option value="flashcards">Solo flashcards</option>
+                        <option value="users">Solo usuarios</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Fecha y hora</label>
+                    <input type="datetime-local" class="form-control" id="scheduleDateTime">
+                </div>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    El respaldo se ejecutará automáticamente en la fecha y hora seleccionadas.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="scheduleBackup()">
+                    <i class="bi bi-calendar-check"></i> Programar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Datos de respaldos
+let backups = {{ backups | tojson }};
+let currentFilter = 'all';
+
+// Filtrar respaldos
+function filterBackups(type) {
+    currentFilter = type;
+    const backupCards = document.querySelectorAll('.backup-card');
+    
+    backupCards.forEach(card => {
+        if (type === 'all' || card.dataset.type === type) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Actualizar botones activos
+    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+}
+
+// Crear respaldo
+function createBackup() {
+    Swal.fire({
+        title: 'Crear Respaldo',
+        html: `
+            <div class="mb-3">
+                <label class="form-label">Tipo de respaldo</label>
+                <select id="backupType" class="form-select">
+                    <option value="full">Completo (todos los datos)</option>
+                    <option value="exercises">Solo ejercicios</option>
+                    <option value="flashcards">Solo flashcards</option>
+                    <option value="users">Solo usuarios</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Nombre del respaldo (opcional)</label>
+                <input type="text" id="backupName" class="form-control" placeholder="auto">
+            </div>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="includeMedia" checked>
+                <label class="form-check-label">Incluir archivos multimedia</label>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Crear Respaldo',
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => {
+            const type = document.getElementById('backupType').value;
+            const name = document.getElementById('backupName').value;
+            const includeMedia = document.getElementById('includeMedia').checked;
+            return { type, name, includeMedia };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Simular creación de respaldo
+            showToast('Creando respaldo...', 'info');
+            setTimeout(() => {
+                showToast('Respaldo creado correctamente', 'success');
+                location.reload();
+            }, 2000);
+        }
+    });
+}
+
+// Ver detalles del respaldo
+function viewBackupDetails(backupId) {
+    const backup = backups.find(b => b.id === backupId);
+    if (!backup) return;
+    
+    const content = `
+        <div class="mb-3">
+            <h6>Información general</h6>
+            <table class="table table-sm">
+                <tr><td width="40%">Nombre del archivo</td><td><code>${backup.filename}</code></td></tr>
+                <tr><td>Fecha de creación</td><td>${backup.created_at}</td></tr>
+                <tr><td>Tamaño</td><td>${backup.size}</td></tr>
+                <tr><td>Tipo</td><td>${backup.type_display}</td></tr>
+                <tr><td>Registros incluidos</td><td>${backup.records}</td></tr>
+            </table>
+        </div>
+        
+        <div class="mb-3">
+            <h6>Contenido del respaldo</h6>
+            <div class="progress mb-2">
+                <div class="progress-bar" style="width: ${backup.completeness || 100}%">
+                    ${backup.completeness || 100}% completo
+                </div>
+            </div>
+            <div class="row small">
+                <div class="col-4">
+                    <div class="text-muted">Ejercicios</div>
+                    <div class="fw-bold">${backup.exercises_count || 0}</div>
+                </div>
+                <div class="col-4">
+                    <div class="text-muted">Flashcards</div>
+                    <div class="fw-bold">${backup.flashcards_count || 0}</div>
+                </div>
+                <div class="col-4">
+                    <div class="text-muted">Usuarios</div>
+                    <div class="fw-bold">${backup.users_count || 0}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <h6>Metadatos</h6>
+            <table class="table table-sm">
+                <tr><td width="40%">Creado por</td><td>${backup.created_by || 'Sistema'}</td></tr>
+                <tr><td>Versión</td><td>${backup.version || '1.0'}</td></tr>
+                <tr><td>Checksum</td><td><code>${backup.checksum || 'N/A'}</code></td></tr>
+            </table>
+        </div>
+    `;
+    
+    document.getElementById('backupDetailsContent').innerHTML = content;
+    new bootstrap.Modal(document.getElementById('backupDetailsModal')).show();
+}
+
+// Comparar respaldo con actual
+function compareBackup(backupId) {
+    const backup = backups.find(b => b.id === backupId);
+    if (!backup) return;
+    
+    // Simular comparación
+    const content = `
+        <div class="comparison-card">
+            <div class="comparison-header">
+                <h6 class="mb-0">Comparación: ${backup.filename} vs Datos actuales</h6>
+            </div>
+            <div class="p-3">
+                <div class="mb-3">
+                    <h6>📊 Resumen de cambios</h6>
+                    <div class="row">
+                        <div class="col-4 text-center">
+                            <div class="diff-added p-2 rounded">
+                                <div class="h3 mb-0">+${backup.new_records || 0}</div>
+                                <small>Nuevos registros</small>
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="diff-removed p-2 rounded">
+                                <div class="h3 mb-0">-${backup.removed_records || 0}</div>
+                                <small>Eliminados</small>
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="diff-modified p-2 rounded">
+                                <div class="h3 mb-0">${backup.modified_records || 0}</div>
+                                <small>Modificados</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>📝 Detalle por tipo</h6>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr><th>Tipo</th><th>En respaldo</th><th>Actual</th><th>Diferencia</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Ejercicios</td>
+                                <td>${backup.exercises_count || 0}</td>
+                                <td>${currentStats.exercises || 0}</td>
+                                <td class="${backup.exercises_count > currentStats.exercises ? 'diff-added' : 'diff-removed'}">
+                                    ${backup.exercises_count - (currentStats.exercises || 0)}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Flashcards</td>
+                                <td>${backup.flashcards_count || 0}</td>
+                                <td>${currentStats.flashcards || 0}</td>
+                                <td class="${backup.flashcards_count > currentStats.flashcards ? 'diff-added' : 'diff-removed'}">
+                                    ${backup.flashcards_count - (currentStats.flashcards || 0)}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Usuarios</td>
+                                <td>${backup.users_count || 0}</td>
+                                <td>${currentStats.users || 0}</td>
+                                <td class="${backup.users_count > currentStats.users ? 'diff-added' : 'diff-removed'}">
+                                    ${backup.users_count - (currentStats.users || 0)}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Restaurar este respaldo reemplazará los datos actuales con los del respaldo.
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('compareContent').innerHTML = content;
+    new bootstrap.Modal(document.getElementById('compareModal')).show();
+}
+
+// Restaurar respaldo
+function restoreBackup(backupId) {
+    const backup = backups.find(b => b.id === backupId);
+    if (!backup) return;
+    
+    Swal.fire({
+        title: 'Restaurar Respaldo',
+        html: `
+            <div class="text-start">
+                <p><strong>Archivo:</strong> ${backup.filename}</p>
+                <p><strong>Fecha:</strong> ${backup.created_at}</p>
+                <p><strong>Tamaño:</strong> ${backup.size}</p>
+                <div class="alert alert-warning mt-3">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>¡Advertencia!</strong><br>
+                    Esta acción reemplazará los datos actuales con los del respaldo.
+                    Se recomienda crear un respaldo actual antes de continuar.
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Sí, restaurar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            showToast('Restaurando respaldo...', 'info');
+            setTimeout(() => {
+                showToast('Respaldo restaurado correctamente', 'success');
+                location.reload();
+            }, 3000);
+        }
+    });
+}
+
+// Eliminar respaldo
+function deleteBackup(backupId) {
+    const backup = backups.find(b => b.id === backupId);
+    if (!backup) return;
+    
+    Swal.fire({
+        title: 'Eliminar Respaldo',
+        text: `¿Estás seguro de eliminar "${backup.filename}"? Esta acción no se puede deshacer.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Simular eliminación
+            backups = backups.filter(b => b.id !== backupId);
+            location.reload();
+        }
+    });
+}
+
+// Descargar respaldo
+function downloadBackup(backupId) {
+    const backup = backups.find(b => b.id === backupId);
+    if (!backup) return;
+    
+    // Simular descarga
+    const dataStr = JSON.stringify(backup.data || {}, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = backup.filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('Descargando respaldo...', 'success');
+}
+
+// Programar respaldo
+function openScheduleModal() {
+    // Establecer fecha mínima (ahora + 1 hora)
+    const minDate = new Date();
+    minDate.setHours(minDate.getHours() + 1);
+    document.getElementById('scheduleDateTime').min = minDate.toISOString().slice(0, 16);
+    new bootstrap.Modal(document.getElementById('scheduleModal')).show();
+}
+
+function scheduleBackup() {
+    const type = document.getElementById('scheduleType').value;
+    const dateTime = document.getElementById('scheduleDateTime').value;
+    
+    if (!dateTime) {
+        showToast('Selecciona una fecha y hora', 'warning');
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Respaldo Programado',
+        text: `Se programó un respaldo ${type === 'full' ? 'completo' : 'parcial'} para ${new Date(dateTime).toLocaleString()}`,
+        icon: 'success',
+        confirmButtonText: 'Aceptar'
+    });
+    
+    bootstrap.Modal.getInstance(document.getElementById('scheduleModal')).hide();
+}
+
+// Configuración de respaldos automáticos
+function toggleAutoBackup() {
+    const isEnabled = document.getElementById('autoBackupToggle').checked;
+    document.getElementById('backupFrequency').disabled = !isEnabled;
+    document.getElementById('backupTime').disabled = !isEnabled;
+    document.getElementById('backupRetention').disabled = !isEnabled;
+    document.getElementById('scheduleActions').style.display = isEnabled ? 'block' : 'none';
+}
+
+function saveSchedule() {
+    const frequency = document.getElementById('backupFrequency').value;
+    const time = document.getElementById('backupTime').value;
+    const retention = document.getElementById('backupRetention').value;
+    
+    showToast('Configuración guardada correctamente', 'success');
+}
+
+// Estadísticas actuales (simuladas)
+const currentStats = {
+    exercises: {{ current_stats.exercises | default(0) }},
+    flashcards: {{ current_stats.flashcards | default(0) }},
+    users: {{ current_stats.users | default(0) }}
+};
+
+// Mostrar toast
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type} border-0 position-fixed bottom-0 end-0 m-3`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    toast.addEventListener('hidden.bs.toast', () => toast.remove());
+}
+</script>
+{% endblock %}

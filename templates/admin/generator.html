@@ -1,0 +1,781 @@
+{% extends "base.html" %}
+
+{% block title %}Generador de Ejercicios - Admin | English Learning Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos del generador */
+    .generator-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 30px 30px;
+    }
+    
+    .generator-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+        transition: all 0.3s ease;
+    }
+    
+    .generator-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    
+    /* Campos de formulario mejorados */
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #4a5568;
+    }
+    
+    /* Vista previa de ejercicios */
+    .preview-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 1rem;
+        margin-top: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .preview-card:hover {
+        transform: translateX(5px);
+    }
+    
+    .exercise-preview {
+        border-left: 4px solid #667eea;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: white;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .exercise-preview:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateX(5px);
+    }
+    
+    /* Plantillas predefinidas */
+    .template-card {
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 15px;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .template-card:hover {
+        border-color: #667eea;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .template-card.selected {
+        border-color: #667eea;
+        background: linear-gradient(135deg, rgba(102,126,234,0.05) 0%, rgba(118,75,162,0.05) 100%);
+    }
+    
+    /* Barra de progreso */
+    .progress-container {
+        background: #e2e8f0;
+        border-radius: 50px;
+        height: 8px;
+        overflow: hidden;
+        margin: 1rem 0;
+    }
+    
+    .progress-bar-custom {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 50px;
+        transition: width 0.5s ease;
+    }
+    
+    /* Botones especiales */
+    .btn-generate {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-generate:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+    }
+    
+    /* Tags y badges */
+    .tag {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: #e2e8f0;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        color: #4a5568;
+        margin: 0.25rem;
+    }
+    
+    /* Animaciones */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .pulse-animation {
+        animation: pulse 0.5s ease-in-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .slide-in {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    /* Modo oscuro */
+    @media (prefers-color-scheme: dark) {
+        .generator-card, .preview-card, .template-card {
+            background: #2d3748;
+            color: #f7fafc;
+        }
+        
+        .form-control, .form-select {
+            background: #1a202c;
+            border-color: #4a5568;
+            color: #f7fafc;
+        }
+        
+        .form-label {
+            color: #e2e8f0;
+        }
+        
+        .exercise-preview {
+            background: #1a202c;
+        }
+        
+        .tag {
+            background: #4a5568;
+            color: #e2e8f0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="generator-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="bi bi-magic me-2"></i>
+                    Generador Inteligente de Ejercicios
+                </h1>
+                <p class="lead mb-0">Crea ejercicios personalizados de forma automática con IA</p>
+            </div>
+            <div>
+                <button class="btn btn-light btn-lg" onclick="window.location.reload()">
+                    <i class="bi bi-arrow-repeat me-2"></i>Actualizar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row">
+        <!-- Panel de configuración -->
+        <div class="col-lg-5">
+            <div class="generator-card">
+                <h4 class="mb-4">
+                    <i class="bi bi-sliders2 me-2 text-primary"></i>
+                    Configuración de Generación
+                </h4>
+                
+                <form id="generatorForm">
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-hash"></i> Cantidad de ejercicios
+                        </label>
+                        <input type="range" class="form-range" id="exerciseCount" min="1" max="500" value="100">
+                        <div class="d-flex justify-content-between mt-1">
+                            <span>1</span>
+                            <span id="countValue" class="fw-bold text-primary">100</span>
+                            <span>500</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-grid-3x3-gap-fill"></i> Módulo
+                        </label>
+                        <select class="form-select" id="exerciseModule">
+                            <option value="">Todos los módulos</option>
+                            <option value="basic-questions">🔤 Preguntas Básicas</option>
+                            <option value="simple-sentences">📝 Oraciones Simples</option>
+                            <option value="compound-sentences">🧩 Oraciones Compuestas</option>
+                            <option value="connectors">🔗 Conectores</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-star-fill"></i> Dificultad
+                        </label>
+                        <select class="form-select" id="exerciseDifficulty">
+                            <option value="">Todas las dificultades</option>
+                            <option value="básico">🟢 Básico</option>
+                            <option value="intermedio">🟡 Intermedio</option>
+                            <option value="avanzado">🔴 Avanzado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-type"></i> Tipo de ejercicio
+                        </label>
+                        <select class="form-select" id="exerciseType">
+                            <option value="">Todos los tipos</option>
+                            <option value="to_be_question">Preguntas con to be</option>
+                            <option value="do_does_question">Preguntas con Do/Does</option>
+                            <option value="did_question">Preguntas con Did</option>
+                            <option value="affirmative_present">Afirmativas Presente</option>
+                            <option value="negative_present">Negativas Presente</option>
+                            <option value="past_simple">Pasado Simple</option>
+                            <option value="connector_contrast">Conectores de Contraste</option>
+                            <option value="connector_cause">Conectores de Causa</option>
+                            <option value="relative_clauses">Oraciones de Relativo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-database"></i> Fuente de vocabulario
+                        </label>
+                        <select class="form-select" id="vocabularySource">
+                            <option value="default">📚 Vocabulario estándar</option>
+                            <option value="business">💼 Vocabulario de negocios</option>
+                            <option value="travel">✈️ Vocabulario de viajes</option>
+                            <option value="academic">🎓 Vocabulario académico</option>
+                            <option value="daily">🏠 Vocabulario cotidiano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="progress-container" id="generationProgress" style="display: none;">
+                        <div class="progress-bar-custom" style="width: 0%"></div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-generate w-100" id="generateBtn">
+                        <i class="bi bi-magic me-2"></i>Generar Ejercicios
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Plantillas predefinidas -->
+            <div class="generator-card">
+                <h5 class="mb-3">
+                    <i class="bi bi-collection me-2 text-success"></i>
+                    Plantillas Predefinidas
+                </h5>
+                <div class="row g-2" id="templatesGrid">
+                    <div class="col-6">
+                        <div class="template-card" onclick="loadTemplate('basic')">
+                            <i class="bi bi-star fs-1 text-primary"></i>
+                            <div class="fw-bold mt-2">Básico</div>
+                            <small class="text-muted">100 ejercicios, todos los módulos</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="template-card" onclick="loadTemplate('questions')">
+                            <i class="bi bi-question-circle fs-1 text-warning"></i>
+                            <div class="fw-bold mt-2">Preguntas</div>
+                            <small class="text-muted">50 ejercicios, solo preguntas</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="template-card" onclick="loadTemplate('advanced')">
+                            <i class="bi bi-diamond fs-1 text-danger"></i>
+                            <div class="fw-bold mt-2">Avanzado</div>
+                            <small class="text-muted">75 ejercicios, nivel avanzado</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="template-card" onclick="loadTemplate('connectors')">
+                            <i class="bi bi-link fs-1 text-info"></i>
+                            <div class="fw-bold mt-2">Conectores</div>
+                            <small class="text-muted">40 ejercicios, solo conectores</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panel de resultados -->
+        <div class="col-lg-7">
+            <div class="generator-card" id="resultsCard" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Ejercicios Generados
+                    </h4>
+                    <div>
+                        <button class="btn btn-sm btn-outline-success me-2" onclick="saveToApp()">
+                            <i class="bi bi-save"></i> Guardar
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="downloadJSON()">
+                            <i class="bi bi-download"></i> Descargar
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="statsAlert" class="alert alert-success mb-3"></div>
+                
+                <div class="d-flex gap-3 mb-3">
+                    <div class="badge bg-primary p-2" id="totalGenerated">0 ejercicios</div>
+                    <div class="badge bg-info p-2" id="totalPoints">0 puntos</div>
+                    <div class="badge bg-warning p-2" id="difficultyStats">Básico: 0 | Intermedio: 0 | Avanzado: 0</div>
+                </div>
+                
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="searchPreview" placeholder="🔍 Buscar en ejercicios generados...">
+                </div>
+                
+                <div id="exercisesPreview" class="preview-scroll" style="max-height: 500px; overflow-y: auto;">
+                    <!-- Vista previa de ejercicios -->
+                </div>
+            </div>
+            
+            <!-- Estadísticas de generación -->
+            <div class="generator-card" id="statsCard" style="display: none;">
+                <h5 class="mb-3">
+                    <i class="bi bi-bar-chart-steps me-2 text-info"></i>
+                    Estadísticas de Generación
+                </h5>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center p-3 border rounded">
+                            <div class="display-6" id="uniqueExercises">0</div>
+                            <small>Ejercicios únicos</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center p-3 border rounded">
+                            <div class="display-6" id="avgDifficulty">0</div>
+                            <small>Dificultad promedio</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mt-2">
+                        <div class="text-center p-3 border rounded">
+                            <div class="display-6" id="totalVariations">0</div>
+                            <small>Variaciones creadas</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mt-2">
+                        <div class="text-center p-3 border rounded">
+                            <div class="display-6" id="generationTime">0s</div>
+                            <small>Tiempo de generación</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Variables globales
+let generatedExercises = [];
+let generationStartTime = null;
+let currentSearchTerm = '';
+
+// Plantillas predefinidas
+const templates = {
+    basic: {
+        count: 100,
+        module: '',
+        difficulty: '',
+        type: ''
+    },
+    questions: {
+        count: 50,
+        module: 'basic-questions',
+        difficulty: '',
+        type: ''
+    },
+    advanced: {
+        count: 75,
+        module: '',
+        difficulty: 'avanzado',
+        type: ''
+    },
+    connectors: {
+        count: 40,
+        module: 'connectors',
+        difficulty: '',
+        type: ''
+    }
+};
+
+// Cargar plantilla
+function loadTemplate(templateName) {
+    const template = templates[templateName];
+    if (!template) return;
+    
+    document.getElementById('exerciseCount').value = template.count;
+    document.getElementById('countValue').textContent = template.count;
+    document.getElementById('exerciseModule').value = template.module;
+    document.getElementById('exerciseDifficulty').value = template.difficulty;
+    document.getElementById('exerciseType').value = template.type;
+    
+    // Resaltar plantilla seleccionada
+    document.querySelectorAll('.template-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    event.currentTarget.classList.add('selected');
+    
+    showToast(`Plantilla "${templateName}" cargada`, 'success');
+}
+
+// Mostrar/ocultar secciones
+function showResults() {
+    document.getElementById('resultsCard').style.display = 'block';
+    document.getElementById('statsCard').style.display = 'block';
+}
+
+// Generar ejercicios
+async function generateExercises(params) {
+    generationStartTime = Date.now();
+    const progressBar = document.getElementById('generationProgress');
+    const progressFill = progressBar.querySelector('.progress-bar-custom');
+    
+    progressBar.style.display = 'block';
+    progressFill.style.width = '0%';
+    
+    try {
+        // Simular progreso de generación
+        for (let i = 0; i <= 100; i += 10) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            progressFill.style.width = `${i}%`;
+        }
+        
+        // Generar ejercicios (simulación - en producción vendría del backend)
+        generatedExercises = generateMockExercises(params);
+        
+        const generationTime = ((Date.now() - generationStartTime) / 1000).toFixed(1);
+        
+        // Actualizar estadísticas
+        updateStats(generationTime);
+        
+        // Mostrar resultados
+        showResults();
+        renderExercisesList();
+        updateStatsAlert();
+        
+        progressBar.style.display = 'none';
+        showToast(`${generatedExercises.length} ejercicios generados correctamente`, 'success');
+        
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('Error al generar ejercicios', 'danger');
+        progressBar.style.display = 'none';
+    }
+}
+
+// Generar ejercicios de ejemplo (simulación)
+function generateMockExercises(params) {
+    const count = params.count;
+    const exercises = [];
+    
+    const templates = [
+        {
+            type: "Preguntas con 'to be'",
+            instruction: "Convierte la afirmación en pregunta:",
+            pattern: (i) => {
+                const subjects = ['he', 'she', 'they', 'we', 'you'];
+                const complements = ['a teacher', 'a doctor', 'happy', 'tired', 'at home'];
+                const subj = subjects[i % subjects.length];
+                const comp = complements[i % complements.length];
+                const spanish = `${subj === 'he' ? 'Él' : subj === 'she' ? 'Ella' : subj === 'they' ? 'Ellos' : subj === 'we' ? 'Nosotros' : 'Tú'} es ${comp}`;
+                const answer = `Is ${subj} ${comp}?`;
+                return { spanish, answer };
+            },
+            difficulty: 'básico',
+            points: 10
+        },
+        {
+            type: "Oraciones Afirmativas",
+            instruction: "Traduce al inglés:",
+            pattern: (i) => {
+                const subjects = ['I', 'You', 'He', 'She', 'We', 'They'];
+                const verbs = ['study', 'work', 'live', 'eat', 'drink', 'speak'];
+                const complements = ['English', 'in an office', 'in Madrid', 'pizza', 'coffee', 'Spanish'];
+                const subj = subjects[i % subjects.length];
+                const verb = verbs[i % verbs.length];
+                const comp = complements[i % complements.length];
+                const spanish = `${subj === 'I' ? 'Yo' : subj === 'You' ? 'Tú' : subj === 'He' ? 'Él' : subj === 'She' ? 'Ella' : subj === 'We' ? 'Nosotros' : 'Ellos'} ${verb}${subj === 'He' || subj === 'She' ? 's' : ''} ${comp}`;
+                const answer = `${subj} ${verb}${subj === 'He' || subj === 'She' ? 's' : ''} ${comp}.`;
+                return { spanish, answer };
+            },
+            difficulty: 'básico',
+            points: 10
+        },
+        {
+            type: "Conectores de Contraste",
+            instruction: "Completa con el conector adecuado:",
+            pattern: (i) => {
+                const connectors = ['but', 'however', 'although'];
+                const connector = connectors[i % connectors.length];
+                const spanish = i % 2 === 0 ? "Es caro, ___ es bueno." : "___ hace frío, salí a correr.";
+                const answer = connector;
+                return { spanish, answer };
+            },
+            difficulty: 'intermedio',
+            points: 15
+        }
+    ];
+    
+    for (let i = 0; i < count; i++) {
+        const template = templates[i % templates.length];
+        const { spanish, answer } = template.pattern(i);
+        
+        exercises.push({
+            id: `gen_${Date.now()}_${i}`,
+            module: params.module || (i % 4 === 0 ? 'basic-questions' : i % 4 === 1 ? 'simple-sentences' : i % 4 === 2 ? 'compound-sentences' : 'connectors'),
+            type: template.type,
+            instruction: template.instruction,
+            spanish: spanish,
+            correct_answer: answer,
+            hint: "Pista: " + (template.type.includes('to be') ? "Invierte el orden" : "Sigue la estructura Sujeto+Verbo"),
+            explanation: template.type.includes('to be') ? "En inglés invertimos 'to be' para preguntas" : "Las oraciones siguen orden SVO",
+            difficulty: params.difficulty || template.difficulty,
+            points: template.points
+        });
+    }
+    
+    return exercises;
+}
+
+// Actualizar estadísticas
+function updateStats(generationTime) {
+    const totalPoints = generatedExercises.reduce((sum, ex) => sum + ex.points, 0);
+    const difficulties = generatedExercises.reduce((acc, ex) => {
+        acc[ex.difficulty] = (acc[ex.difficulty] || 0) + 1;
+        return acc;
+    }, {});
+    
+    document.getElementById('totalGenerated').textContent = `${generatedExercises.length} ejercicios`;
+    document.getElementById('totalPoints').textContent = `${totalPoints} puntos`;
+    document.getElementById('difficultyStats').innerHTML = `🟢 Básico: ${difficulties.básico || 0} | 🟡 Intermedio: ${difficulties.intermedio || 0} | 🔴 Avanzado: ${difficulties.avanzado || 0}`;
+    
+    document.getElementById('uniqueExercises').textContent = generatedExercises.length;
+    document.getElementById('avgDifficulty').textContent = Object.keys(difficulties).length;
+    document.getElementById('totalVariations').textContent = Math.floor(generatedExercises.length * 1.5);
+    document.getElementById('generationTime').textContent = `${generationTime}s`;
+}
+
+// Actualizar alerta de estadísticas
+function updateStatsAlert() {
+    const statsAlert = document.getElementById('statsAlert');
+    statsAlert.innerHTML = `
+        <i class="bi bi-check-circle-fill me-2"></i>
+        ✅ ¡Generación completada! Se crearon <strong>${generatedExercises.length}</strong> ejercicios.
+        <br>
+        <small>📊 Distribución: ${generatedExercises.filter(e => e.difficulty === 'básico').length} básicos, 
+        ${generatedExercises.filter(e => e.difficulty === 'intermedio').length} intermedios,
+        ${generatedExercises.filter(e => e.difficulty === 'avanzado').length} avanzados</small>
+    `;
+}
+
+// Renderizar lista de ejercicios
+function renderExercisesList() {
+    const container = document.getElementById('exercisesPreview');
+    let filteredExercises = generatedExercises;
+    
+    if (currentSearchTerm) {
+        filteredExercises = generatedExercises.filter(ex => 
+            ex.spanish.toLowerCase().includes(currentSearchTerm) ||
+            ex.correct_answer.toLowerCase().includes(currentSearchTerm) ||
+            ex.type.toLowerCase().includes(currentSearchTerm)
+        );
+    }
+    
+    container.innerHTML = filteredExercises.slice(0, 20).map((ex, idx) => `
+        <div class="exercise-preview slide-in">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-${ex.difficulty === 'básico' ? 'success' : ex.difficulty === 'intermedio' ? 'warning' : 'danger'}">${ex.difficulty}</span>
+                        <span class="badge bg-primary">${ex.points} pts</span>
+                        <small class="text-muted">${ex.module.replace('-', ' ')}</small>
+                    </div>
+                    <div class="fw-bold">${ex.type}</div>
+                    <div class="text-muted small">${ex.instruction}</div>
+                    <div class="mt-2">
+                        <span class="tag">🇪🇸 ${ex.spanish.substring(0, 60)}${ex.spanish.length > 60 ? '...' : ''}</span>
+                        <span class="tag">✅ ${ex.correct_answer.substring(0, 60)}${ex.correct_answer.length > 60 ? '...' : ''}</span>
+                    </div>
+                </div>
+                <div class="ms-2">
+                    <button class="btn btn-sm btn-outline-danger" onclick="removeExercise(${idx})" title="Eliminar">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    if (filteredExercises.length > 20) {
+        container.innerHTML += `
+            <div class="text-center text-muted mt-2">
+                <small>... y ${filteredExercises.length - 20} ejercicios más</small>
+            </div>
+        `;
+    }
+    
+    if (filteredExercises.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted"></i>
+                <p class="mt-2">No se encontraron ejercicios</p>
+            </div>
+        `;
+    }
+}
+
+// Buscar en ejercicios
+document.getElementById('searchPreview').addEventListener('input', (e) => {
+    currentSearchTerm = e.target.value.toLowerCase();
+    renderExercisesList();
+});
+
+// Guardar en aplicación
+function saveToApp() {
+    if (generatedExercises.length === 0) {
+        showToast('No hay ejercicios para guardar', 'warning');
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Guardar Ejercicios',
+        text: `¿Guardar ${generatedExercises.length} ejercicios en la base de datos?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, guardar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Simular guardado
+            setTimeout(() => {
+                showToast(`${generatedExercises.length} ejercicios guardados correctamente`, 'success');
+                // Aquí iría la llamada a la API para guardar
+            }, 1000);
+        }
+    });
+}
+
+// Descargar JSON
+function downloadJSON() {
+    if (generatedExercises.length === 0) {
+        showToast('No hay ejercicios para descargar', 'warning');
+        return;
+    }
+    
+    const dataStr = JSON.stringify(generatedExercises, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `exercises_${new Date().toISOString().slice(0, 19)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('Archivo descargado correctamente', 'success');
+}
+
+// Eliminar ejercicio individual
+function removeExercise(index) {
+    generatedExercises.splice(index, 1);
+    renderExercisesList();
+    updateStats(document.getElementById('generationTime').textContent);
+    updateStatsAlert();
+    showToast('Ejercicio eliminado', 'info');
+}
+
+// Mostrar toast
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type} border-0 position-fixed bottom-0 end-0 m-3`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    toast.addEventListener('hidden.bs.toast', () => toast.remove());
+}
+
+// Event listener del formulario
+document.getElementById('generatorForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const params = {
+        count: parseInt(document.getElementById('exerciseCount').value),
+        module: document.getElementById('exerciseModule').value,
+        difficulty: document.getElementById('exerciseDifficulty').value,
+        type: document.getElementById('exerciseType').value,
+        vocabulary: document.getElementById('vocabularySource').value
+    };
+    
+    const generateBtn = document.getElementById('generateBtn');
+    generateBtn.disabled = true;
+    generateBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Generando...';
+    
+    await generateExercises(params);
+    
+    generateBtn.disabled = false;
+    generateBtn.innerHTML = '<i class="bi bi-magic me-2"></i>Generar Ejercicios';
+});
+
+// Actualizar valor del slider
+document.getElementById('exerciseCount').addEventListener('input', (e) => {
+    document.getElementById('countValue').textContent = e.target.value;
+});
+</script>
+{% endblock %}

@@ -1,0 +1,952 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Gestión de Ejercicios | English Learning Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos para admin */
+    .admin-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 30px 30px;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-box {
+        background: white;
+        border-radius: 15px;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    
+    .filter-bar {
+        background: white;
+        border-radius: 15px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .exercises-table {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .exercises-table th {
+        background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        padding: 1rem;
+    }
+    
+    .exercises-table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .exercise-row:hover {
+        background: #f8f9fa;
+        cursor: pointer;
+    }
+    
+    .difficulty-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .difficulty-basic { background: #d4edda; color: #155724; }
+    .difficulty-intermediate { background: #fff3cd; color: #856404; }
+    .difficulty-advanced { background: #f8d7da; color: #721c24; }
+    
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-icon:hover {
+        transform: scale(1.1);
+    }
+    
+    .modal-exercise {
+        max-width: 800px;
+    }
+    
+    .preview-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .search-highlight {
+        background-color: #fff3cd;
+        padding: 0 2px;
+        border-radius: 3px;
+    }
+    
+    .pagination {
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+    
+    .page-link {
+        color: #667eea;
+        border-radius: 8px;
+        margin: 0 2px;
+    }
+    
+    .page-link:hover {
+        background: #667eea;
+        color: white;
+    }
+    
+    .page-item.active .page-link {
+        background: #667eea;
+        border-color: #667eea;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .exercise-row {
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    /* Modo oscuro para admin */
+    @media (prefers-color-scheme: dark) {
+        .stat-box, .filter-bar, .exercises-table {
+            background: #2d3748;
+            color: #f7fafc;
+        }
+        
+        .exercises-table th {
+            background: #1a202c;
+            color: #f7fafc;
+            border-color: #4a5568;
+        }
+        
+        .preview-card {
+            background: #1a202c;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="bi bi-journal-bookmark-fill me-2"></i>
+                    Gestión de Ejercicios
+                </h1>
+                <p class="lead mb-0">Administra los 100 ejercicios base de la plataforma</p>
+            </div>
+            <div>
+                <button class="btn btn-light btn-lg" onclick="openAddModal()">
+                    <i class="bi bi-plus-circle me-2"></i>Nuevo Ejercicio
+                </button>
+                <button class="btn btn-outline-light btn-lg ms-2" onclick="exportExercises()">
+                    <i class="bi bi-download me-2"></i>Exportar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <!-- Estadísticas rápidas -->
+    <div class="stats-grid">
+        <div class="stat-box">
+            <i class="bi bi-journal-bookmark-fill fs-2 text-primary"></i>
+            <div class="stat-number" id="total-exercises">100</div>
+            <small>Total ejercicios</small>
+        </div>
+        <div class="stat-box">
+            <i class="bi bi-grid-3x3-gap-fill fs-2 text-success"></i>
+            <div class="stat-number" id="total-modules">4</div>
+            <small>Módulos</small>
+        </div>
+        <div class="stat-box">
+            <i class="bi bi-star-fill fs-2 text-warning"></i>
+            <div class="stat-number" id="total-points">1000</div>
+            <small>Puntos totales</small>
+        </div>
+        <div class="stat-box">
+            <i class="bi bi-graph-up fs-2 text-info"></i>
+            <div class="stat-number" id="avg-difficulty">3</div>
+            <small>Niveles de dificultad</small>
+        </div>
+    </div>
+
+    <!-- Barra de filtros y búsqueda -->
+    <div class="filter-bar">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="searchInput" 
+                           placeholder="Buscar por texto, tipo o respuesta...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="moduleFilter">
+                    <option value="">Todos los módulos</option>
+                    <option value="basic-questions">Preguntas Básicas</option>
+                    <option value="simple-sentences">Oraciones Simples</option>
+                    <option value="compound-sentences">Oraciones Compuestas</option>
+                    <option value="connectors">Conectores</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="difficultyFilter">
+                    <option value="">Todas las dificultades</option>
+                    <option value="básico">Básico</option>
+                    <option value="intermedio">Intermedio</option>
+                    <option value="avanzado">Avanzado</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary" onclick="resetFilters()">
+                        <i class="bi bi-arrow-repeat"></i> Reset
+                    </button>
+                    <button class="btn btn-primary" onclick="generateExercises()">
+                        <i class="bi bi-magic"></i> Generar Más
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de ejercicios -->
+    <div class="exercises-table">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 5%">ID</th>
+                        <th style="width: 15%">Tipo</th>
+                        <th style="width: 30%">Oración en Español</th>
+                        <th style="width: 25%">Respuesta Correcta</th>
+                        <th style="width: 10%">Módulo</th>
+                        <th style="width: 8%">Dificultad</th>
+                        <th style="width: 7%">Puntos</th>
+                        <th style="width: 10%">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="exercisesTableBody">
+                    <!-- Los ejercicios se cargarán dinámicamente con JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Paginación -->
+        <div class="pagination-container" id="pagination"></div>
+    </div>
+</div>
+
+<!-- Modal para agregar/editar ejercicio -->
+<div class="modal fade" id="exerciseModal" tabindex="-1">
+    <div class="modal-dialog modal-exercise">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalTitle">
+                    <i class="bi bi-plus-circle me-2"></i>Agregar Ejercicio
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="exerciseForm">
+                    <input type="hidden" id="exerciseId" name="id">
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Módulo *</label>
+                            <select class="form-select" id="module" name="module" required>
+                                <option value="basic-questions">Preguntas Básicas</option>
+                                <option value="simple-sentences">Oraciones Simples</option>
+                                <option value="compound-sentences">Oraciones Compuestas</option>
+                                <option value="connectors">Conectores</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tipo de ejercicio *</label>
+                            <input type="text" class="form-control" id="type" name="type" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Instrucción *</label>
+                        <input type="text" class="form-control" id="instruction" name="instruction" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Oración en español *</label>
+                        <textarea class="form-control" id="spanish" name="spanish" rows="2" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Respuesta correcta en inglés *</label>
+                        <textarea class="form-control" id="correctAnswer" name="correct_answer" rows="2" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Pista</label>
+                        <textarea class="form-control" id="hint" name="hint" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Explicación gramatical</label>
+                        <textarea class="form-control" id="explanation" name="explanation" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Dificultad *</label>
+                            <select class="form-select" id="difficulty" name="difficulty" required>
+                                <option value="básico">Básico</option>
+                                <option value="intermedio">Intermedio</option>
+                                <option value="avanzado">Avanzado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Puntos *</label>
+                            <input type="number" class="form-control" id="points" name="points" value="10" required>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-card">
+                        <h6><i class="bi bi-eye me-2"></i>Vista previa</h6>
+                        <div id="previewText" class="text-muted small">Completa los campos para ver la vista previa...</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveExercise()">
+                    <i class="bi bi-save me-2"></i>Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Datos base de 100 ejercicios (simulados - en producción vendrían del backend)
+let exercises = [];
+
+// Variables de paginación
+let currentPage = 1;
+let itemsPerPage = 15;
+let filteredExercises = [];
+
+// Inicializar ejercicios base
+function initializeExercises() {
+    // Datos base de 100 ejercicios (estructura completa)
+    const baseExercises = [
+        // Preguntas Básicas (1-25)
+        ...Array(25).fill().map((_, i) => ({
+            id: `ex_${i + 1}`,
+            module: "basic-questions",
+            type: i < 8 ? "Preguntas con 'to be'" : (i < 16 ? "Preguntas con Do/Does" : "Preguntas con Did"),
+            instruction: "Convierte la afirmación en pregunta:",
+            spanish: getRandomSpanishQuestion(i),
+            correct_answer: getRandomEnglishQuestion(i),
+            hint: getRandomHint(i),
+            explanation: getRandomExplanation(i),
+            difficulty: i < 8 ? "básico" : (i < 16 ? "básico" : "intermedio"),
+            points: 10
+        })),
+        
+        // Oraciones Simples (26-50)
+        ...Array(25).fill().map((_, i) => ({
+            id: `ex_${i + 26}`,
+            module: "simple-sentences",
+            type: i < 10 ? "Oraciones Afirmativas" : (i < 18 ? "Oraciones Negativas" : "Oraciones en Pasado"),
+            instruction: "Traduce al inglés:",
+            spanish: getRandomSpanishSentence(i + 25),
+            correct_answer: getRandomEnglishSentence(i + 25),
+            hint: getRandomSentenceHint(i + 25),
+            explanation: getRandomSentenceExplanation(i + 25),
+            difficulty: i < 10 ? "básico" : (i < 18 ? "intermedio" : "intermedio"),
+            points: 10
+        })),
+        
+        // Oraciones Compuestas (51-75)
+        ...Array(25).fill().map((_, i) => ({
+            id: `ex_${i + 51}`,
+            module: "compound-sentences",
+            type: i < 12 ? "Conectores Básicos" : (i < 20 ? "Oraciones de Relativo" : "Condicionales"),
+            instruction: i < 12 ? "Une las oraciones usando el conector:" : "Combina las oraciones usando pronombre relativo:",
+            spanish: getRandomCompoundSpanish(i + 50),
+            correct_answer: getRandomCompoundEnglish(i + 50),
+            hint: getRandomCompoundHint(i + 50),
+            explanation: getRandomCompoundExplanation(i + 50),
+            difficulty: i < 12 ? "intermedio" : (i < 20 ? "intermedio" : "avanzado"),
+            points: 15
+        })),
+        
+        // Conectores (76-100)
+        ...Array(25).fill().map((_, i) => ({
+            id: `ex_${i + 76}`,
+            module: "connectors",
+            type: i < 8 ? "Conectores de Contraste" : (i < 16 ? "Conectores de Causa" : "Conectores de Resultado"),
+            instruction: "Completa con el conector adecuado:",
+            spanish: getRandomConnectorSpanish(i + 75),
+            correct_answer: getRandomConnectorEnglish(i + 75),
+            hint: getRandomConnectorHint(i + 75),
+            explanation: getRandomConnectorExplanation(i + 75),
+            difficulty: i < 8 ? "intermedio" : (i < 16 ? "avanzado" : "avanzado"),
+            points: 15
+        }))
+    ];
+    
+    exercises = baseExercises;
+    filterExercises();
+    updateStats();
+    renderTable();
+}
+
+// Funciones de texto aleatorio para generar ejercicios variados
+function getRandomSpanishQuestion(index) {
+    const subjects = ["Él", "Ella", "Usted", "Ellos", "Nosotros", "Tú", "María", "Juan", "Mi hermano", "La profesora"];
+    const complements = ["profesor", "médico", "ingeniero", "estudiante", "enfermero", "abogado", "arquitecto", "chef"];
+    return `${subjects[index % subjects.length]} es ${complements[index % complements.length]}`;
+}
+
+function getRandomEnglishQuestion(index) {
+    const subjects = ["he", "she", "you", "they", "we", "you", "Maria", "John", "my brother", "the teacher"];
+    const complements = ["a teacher", "a doctor", "an engineer", "a student", "a nurse", "a lawyer", "an architect", "a chef"];
+    return `Is ${subjects[index % subjects.length]} ${complements[index % complements.length]}?`;
+}
+
+function getRandomHint(index) {
+    const hints = [
+        "Recuerda invertir el orden: Verbo + Sujeto + Complemento",
+        "Para he/she/it usa DOES + verbo en forma base",
+        "En pasado simple usa DID + verbo base",
+        "No olvides el auxiliar correspondiente"
+    ];
+    return hints[index % hints.length];
+}
+
+function getRandomExplanation(index) {
+    const explanations = [
+        "En inglés, invertimos el verbo 'to be' para hacer preguntas",
+        "Añadimos 'do/does' cuando no hay otro auxiliar en la oración",
+        "Para preguntas en pasado simple usamos 'did' seguido del verbo en forma base"
+    ];
+    return explanations[index % explanations.length];
+}
+
+function getRandomSpanishSentence(index) {
+    const subjects = ["Yo", "Tú", "Él", "Ella", "Nosotros", "Ellos"];
+    const verbs = ["estudio", "trabajas", "vive", "cocina", "leemos", "escriben"];
+    const complements = ["inglés", "en una oficina", "en Madrid", "muy bien", "libros", "poemas"];
+    return `${subjects[index % subjects.length]} ${verbs[index % verbs.length]} ${complements[index % complements.length]}`;
+}
+
+function getRandomEnglishSentence(index) {
+    const subjects = ["I", "You", "He", "She", "We", "They"];
+    const verbs = ["study", "work", "lives", "cooks", "read", "write"];
+    const complements = ["English", "in an office", "in Madrid", "very well", "books", "poems"];
+    return `${subjects[index % subjects.length]} ${verbs[index % verbs.length]} ${complements[index % complements.length]}.`;
+}
+
+function getRandomSentenceHint(index) {
+    const hints = [
+        "Orden: Sujeto + Verbo + Complemento",
+        "Recuerda la tercera persona del singular añade -s",
+        "Para negativas usa don't/doesn't + verbo base"
+    ];
+    return hints[index % hints.length];
+}
+
+function getRandomSentenceExplanation(index) {
+    const explanations = [
+        "Las oraciones afirmativas en presente simple siguen el orden Sujeto-Verbo-Complemento",
+        "Para la tercera persona del singular (he/she/it) el verbo lleva -s o -es"
+    ];
+    return explanations[index % explanations.length];
+}
+
+function getRandomCompoundSpanish(index) {
+    const patterns = [
+        "Quiero ir al cine. No tengo dinero.",
+        "Estudié mucho. No aprobé el examen.",
+        "Llueve. Saldré a correr.",
+        "Llegué a casa. El teléfono sonaba."
+    ];
+    return patterns[index % patterns.length];
+}
+
+function getRandomCompoundEnglish(index) {
+    const patterns = [
+        "I want to go to the cinema but I don't have money.",
+        "I studied hard but I didn't pass the exam.",
+        "Although it's raining, I'll go running.",
+        "When I arrived home, the phone was ringing."
+    ];
+    return patterns[index % patterns.length];
+}
+
+function getRandomCompoundHint(index) {
+    const hints = [
+        "Usa 'but' para contrastar ideas",
+        "Usa 'although' para mostrar concesión",
+        "Usa 'when' para acciones secuenciales"
+    ];
+    return hints[index % hints.length];
+}
+
+function getRandomCompoundExplanation(index) {
+    const explanations = [
+        "Los conectores como 'but' muestran oposición entre ideas",
+        "La conjunción 'although' introduce una concesión",
+        "'When' se usa para acciones que ocurren en secuencia"
+    ];
+    return explanations[index % explanations.length];
+}
+
+function getRandomConnectorSpanish(index) {
+    const patterns = [
+        "El producto es caro. Es de buena calidad.",
+        "Estaba lloviendo. Llevé paraguas.",
+        "Estudié mucho. Aprobé el examen."
+    ];
+    return patterns[index % patterns.length];
+}
+
+function getRandomConnectorEnglish(index) {
+    const patterns = [
+        "The product is expensive, but it is good quality.",
+        "It was raining, so I brought an umbrella.",
+        "I studied hard; therefore, I passed the exam."
+    ];
+    return patterns[index % patterns.length];
+}
+
+function getRandomConnectorHint(index) {
+    const hints = [
+        "Usa 'but' para contraste",
+        "Usa 'so' para resultado",
+        "Usa 'therefore' para conclusión lógica"
+    ];
+    return hints[index % hints.length];
+}
+
+function getRandomConnectorExplanation(index) {
+    const explanations = [
+        "Los conectores de contraste unen ideas opuestas",
+        "Los conectores de resultado muestran consecuencia",
+        "'Therefore' es un conector formal para conclusiones"
+    ];
+    return explanations[index % explanations.length];
+}
+
+// Filtrar ejercicios
+function filterExercises() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const moduleFilter = document.getElementById('moduleFilter').value;
+    const difficultyFilter = document.getElementById('difficultyFilter').value;
+    
+    filteredExercises = exercises.filter(ex => {
+        const matchesSearch = !searchTerm || 
+            ex.type.toLowerCase().includes(searchTerm) ||
+            ex.spanish.toLowerCase().includes(searchTerm) ||
+            ex.correct_answer.toLowerCase().includes(searchTerm);
+        
+        const matchesModule = !moduleFilter || ex.module === moduleFilter;
+        const matchesDifficulty = !difficultyFilter || ex.difficulty === difficultyFilter;
+        
+        return matchesSearch && matchesModule && matchesDifficulty;
+    });
+    
+    currentPage = 1;
+    renderTable();
+    updatePagination();
+}
+
+// Renderizar tabla
+function renderTable() {
+    const tbody = document.getElementById('exercisesTableBody');
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const pageExercises = filteredExercises.slice(start, end);
+    
+    if (pageExercises.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                    <p class="mt-2">No se encontraron ejercicios</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = pageExercises.map(ex => `
+        <tr class="exercise-row">
+            <td><code>${ex.id}</code></td>
+            <td><strong>${ex.type}</strong></td>
+            <td>${escapeHtml(ex.spanish)}</td>
+            <td><code>${escapeHtml(ex.correct_answer)}</code></td>
+            <td><span class="badge bg-info">${ex.module.replace('-', ' ')}</span></td>
+            <td><span class="difficulty-badge difficulty-${ex.difficulty}">${ex.difficulty}</span></td>
+            <td><span class="badge bg-warning">${ex.points} pts</span></td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn btn-sm btn-outline-primary btn-icon" onclick="editExercise('${ex.id}')" title="Editar">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger btn-icon" onclick="deleteExercise('${ex.id}')" title="Eliminar">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-success btn-icon" onclick="previewExercise('${ex.id}')" title="Vista previa">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Actualizar paginación
+function updatePagination() {
+    const totalPages = Math.ceil(filteredExercises.length / itemsPerPage);
+    const pagination = document.getElementById('pagination');
+    
+    if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+    
+    let html = '<ul class="pagination">';
+    
+    // Botón anterior
+    html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">«</a>
+    </li>`;
+    
+    // Números de página
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+            html += `<li class="page-item ${currentPage === i ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+            </li>`;
+        } else if (i === currentPage - 3 || i === currentPage + 3) {
+            html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+        }
+    }
+    
+    // Botón siguiente
+    html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">»</a>
+    </li>`;
+    html += '</ul>';
+    
+    pagination.innerHTML = html;
+}
+
+function changePage(page) {
+    currentPage = page;
+    renderTable();
+    updatePagination();
+}
+
+// Actualizar estadísticas
+function updateStats() {
+    const totalPoints = exercises.reduce((sum, ex) => sum + ex.points, 0);
+    const modules = new Set(exercises.map(ex => ex.module));
+    const difficulties = new Set(exercises.map(ex => ex.difficulty));
+    
+    document.getElementById('total-exercises').textContent = exercises.length;
+    document.getElementById('total-modules').textContent = modules.size;
+    document.getElementById('total-points').textContent = totalPoints;
+    document.getElementById('avg-difficulty').textContent = difficulties.size;
+}
+
+// Resetear filtros
+function resetFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('moduleFilter').value = '';
+    document.getElementById('difficultyFilter').value = '';
+    filterExercises();
+}
+
+// Abrir modal para agregar ejercicio
+function openAddModal() {
+    document.getElementById('modalTitle').innerHTML = '<i class="bi bi-plus-circle me-2"></i>Agregar Ejercicio';
+    document.getElementById('exerciseForm').reset();
+    document.getElementById('exerciseId').value = '';
+    document.getElementById('previewText').innerHTML = 'Completa los campos para ver la vista previa...';
+    new bootstrap.Modal(document.getElementById('exerciseModal')).show();
+}
+
+// Editar ejercicio
+function editExercise(id) {
+    const exercise = exercises.find(ex => ex.id === id);
+    if (!exercise) return;
+    
+    document.getElementById('modalTitle').innerHTML = '<i class="bi bi-pencil me-2"></i>Editar Ejercicio';
+    document.getElementById('exerciseId').value = exercise.id;
+    document.getElementById('module').value = exercise.module;
+    document.getElementById('type').value = exercise.type;
+    document.getElementById('instruction').value = exercise.instruction;
+    document.getElementById('spanish').value = exercise.spanish;
+    document.getElementById('correctAnswer').value = exercise.correct_answer;
+    document.getElementById('hint').value = exercise.hint || '';
+    document.getElementById('explanation').value = exercise.explanation || '';
+    document.getElementById('difficulty').value = exercise.difficulty;
+    document.getElementById('points').value = exercise.points;
+    
+    updatePreview();
+    new bootstrap.Modal(document.getElementById('exerciseModal')).show();
+}
+
+// Guardar ejercicio
+function saveExercise() {
+    const id = document.getElementById('exerciseId').value;
+    const newId = id || `ex_${Date.now()}`;
+    
+    const exercise = {
+        id: newId,
+        module: document.getElementById('module').value,
+        type: document.getElementById('type').value,
+        instruction: document.getElementById('instruction').value,
+        spanish: document.getElementById('spanish').value,
+        correct_answer: document.getElementById('correctAnswer').value,
+        hint: document.getElementById('hint').value,
+        explanation: document.getElementById('explanation').value,
+        difficulty: document.getElementById('difficulty').value,
+        points: parseInt(document.getElementById('points').value)
+    };
+    
+    if (id) {
+        // Actualizar existente
+        const index = exercises.findIndex(ex => ex.id === id);
+        if (index !== -1) {
+            exercises[index] = exercise;
+        }
+    } else {
+        // Agregar nuevo
+        exercises.push(exercise);
+    }
+    
+    filterExercises();
+    updateStats();
+    bootstrap.Modal.getInstance(document.getElementById('exerciseModal')).hide();
+    showToast('Ejercicio guardado correctamente', 'success');
+}
+
+// Eliminar ejercicio
+function deleteExercise(id) {
+    if (confirm('¿Estás seguro de eliminar este ejercicio?')) {
+        exercises = exercises.filter(ex => ex.id !== id);
+        filterExercises();
+        updateStats();
+        showToast('Ejercicio eliminado correctamente', 'success');
+    }
+}
+
+// Vista previa del ejercicio
+function previewExercise(id) {
+    const exercise = exercises.find(ex => ex.id === id);
+    if (!exercise) return;
+    
+    Swal.fire({
+        title: exercise.type,
+        html: `
+            <div class="text-start">
+                <p><strong>📝 Instrucción:</strong> ${exercise.instruction}</p>
+                <p><strong>🇪🇸 Español:</strong> ${exercise.spanish}</p>
+                <p><strong>✅ Respuesta correcta:</strong> <code>${exercise.correct_answer}</code></p>
+                <p><strong>💡 Pista:</strong> ${exercise.hint || 'No disponible'}</p>
+                <p><strong>📖 Explicación:</strong> ${exercise.explanation || 'No disponible'}</p>
+                <hr>
+                <p><strong>🏷️ Módulo:</strong> ${exercise.module}</p>
+                <p><strong>🎯 Dificultad:</strong> ${exercise.difficulty}</p>
+                <p><strong>⭐ Puntos:</strong> ${exercise.points}</p>
+            </div>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Cerrar',
+        confirmButtonColor: '#667eea'
+    });
+}
+
+// Exportar ejercicios
+function exportExercises() {
+    const dataStr = JSON.stringify(exercises, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `exercises_${new Date().toISOString().slice(0, 19)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Ejercicios exportados correctamente', 'success');
+}
+
+// Generar más ejercicios
+function generateExercises() {
+    Swal.fire({
+        title: 'Generar ejercicios',
+        html: `
+            <div class="mb-3">
+                <label class="form-label">Cantidad:</label>
+                <input type="number" id="generateCount" class="form-control" value="10" min="1" max="100">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Módulo:</label>
+                <select id="generateModule" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="basic-questions">Preguntas Básicas</option>
+                    <option value="simple-sentences">Oraciones Simples</option>
+                    <option value="compound-sentences">Oraciones Compuestas</option>
+                    <option value="connectors">Conectores</option>
+                </select>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Generar',
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => {
+            const count = parseInt(document.getElementById('generateCount').value);
+            const module = document.getElementById('generateModule').value;
+            return { count, module };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const { count, module } = result.value;
+            generateNewExercises(count, module);
+        }
+    });
+}
+
+function generateNewExercises(count, moduleFilter) {
+    const startId = exercises.length + 1;
+    for (let i = 0; i < count; i++) {
+        const newId = `ex_gen_${Date.now()}_${i}`;
+        const module = moduleFilter || ['basic-questions', 'simple-sentences', 'compound-sentences', 'connectors'][i % 4];
+        
+        const newExercise = {
+            id: newId,
+            module: module,
+            type: `Ejercicio Generado ${startId + i}`,
+            instruction: "Traduce al inglés:",
+            spanish: `Oración de ejemplo ${startId + i}`,
+            correct_answer: `Example sentence ${startId + i}`,
+            hint: "Esta es una pista de ejemplo",
+            explanation: "Explicación del ejercicio generado",
+            difficulty: ["básico", "intermedio", "avanzado"][i % 3],
+            points: 10
+        };
+        exercises.push(newExercise);
+    }
+    
+    filterExercises();
+    updateStats();
+    showToast(`${count} ejercicios generados correctamente`, 'success');
+}
+
+// Actualizar vista previa en el modal
+function updatePreview() {
+    const spanish = document.getElementById('spanish').value;
+    const answer = document.getElementById('correctAnswer').value;
+    const previewDiv = document.getElementById('previewText');
+    
+    if (spanish && answer) {
+        previewDiv.innerHTML = `
+            <strong>Vista previa:</strong><br>
+            🇪🇸 ${escapeHtml(spanish)}<br>
+            ✅ ${escapeHtml(answer)}
+        `;
+    } else {
+        previewDiv.innerHTML = 'Completa los campos para ver la vista previa...';
+    }
+}
+
+// Función para mostrar toast
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type} border-0 position-fixed bottom-0 end-0 m-3`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    toast.addEventListener('hidden.bs.toast', () => toast.remove());
+}
+
+// Escapar HTML para evitar XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Event listeners
+document.getElementById('searchInput').addEventListener('input', filterExercises);
+document.getElementById('moduleFilter').addEventListener('change', filterExercises);
+document.getElementById('difficultyFilter').addEventListener('change', filterExercises);
+
+// Escuchar cambios en el formulario para vista previa
+document.getElementById('spanish').addEventListener('input', updatePreview);
+document.getElementById('correctAnswer').addEventListener('input', updatePreview);
+
+// Inicializar
+initializeExercises();
+</script>
+{% endblock %}

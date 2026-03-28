@@ -1,0 +1,942 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Editar Flashcard | English Learning Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos del formulario de edición de flashcards */
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 30px 30px;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-label .required {
+        color: #dc3545;
+        margin-left: 4px;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    /* Vista previa de flashcard */
+    .preview-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        position: sticky;
+        top: 20px;
+    }
+    
+    .flashcard-preview {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        transform-style: preserve-3d;
+        transition: transform 0.6s;
+    }
+    
+    .flashcard-preview.flipped {
+        transform: rotateY(180deg);
+    }
+    
+    .preview-front, .preview-back {
+        backface-visibility: hidden;
+        padding: 2rem;
+        text-align: center;
+        min-height: 280px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .preview-front {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .preview-back {
+        background: #f8f9fa;
+        transform: rotateY(180deg);
+        position: relative;
+        top: -280px;
+    }
+    
+    .preview-front .spanish-word {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin: 1rem 0;
+    }
+    
+    .preview-back .english-word {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Categorías visuales */
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+    }
+    
+    .category-card {
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.75rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .category-card.selected {
+        border-color: #667eea;
+        background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+    }
+    
+    .category-icon {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .category-name {
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    /* Dificultad visual */
+    .difficulty-selector {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+    
+    .difficulty-option {
+        flex: 1;
+        text-align: center;
+        padding: 1rem;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .difficulty-option:hover {
+        transform: translateY(-2px);
+    }
+    
+    .difficulty-option.selected {
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .difficulty-basic { background: #d4edda; color: #155724; }
+    .difficulty-intermediate { background: #fff3cd; color: #856404; }
+    .difficulty-advanced { background: #f8d7da; color: #721c24; }
+    
+    /* Historial de versiones */
+    .version-history {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .version-item {
+        padding: 1rem;
+        border-left: 3px solid #e2e8f0;
+        margin-bottom: 0.75rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .version-item:hover {
+        background: #e9ecef;
+        border-left-color: #667eea;
+        transform: translateX(5px);
+    }
+    
+    .version-item.active {
+        background: #e9ecef;
+        border-left-color: #28a745;
+    }
+    
+    .version-date {
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+    
+    /* Comparación de cambios */
+    .comparison-view {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .comparison-col {
+        flex: 1;
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+    }
+    
+    .diff-added {
+        background: #d4edda;
+        color: #155724;
+        padding: 0.125rem 0.25rem;
+        border-radius: 3px;
+    }
+    
+    .diff-removed {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 0.125rem 0.25rem;
+        border-radius: 3px;
+        text-decoration: line-through;
+    }
+    
+    .diff-modified {
+        background: #fff3cd;
+        color: #856404;
+        padding: 0.125rem 0.25rem;
+        border-radius: 3px;
+    }
+    
+    /* Barra de progreso de guardado */
+    .save-progress {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 300px;
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        z-index: 1000;
+        display: none;
+    }
+    
+    /* Botones */
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    /* Animaciones */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .form-section {
+        animation: fadeInUp 0.4s ease-out;
+    }
+    
+    /* Modo oscuro */
+    @media (prefers-color-scheme: dark) {
+        .form-card {
+            background: #2d3748;
+        }
+        
+        .form-label {
+            color: #e2e8f0;
+        }
+        
+        .form-control, .form-select {
+            background: #1a202c;
+            border-color: #4a5568;
+            color: #f7fafc;
+        }
+        
+        .preview-card {
+            background: #1a202c;
+        }
+        
+        .flashcard-preview {
+            background: #2d3748;
+        }
+        
+        .preview-back {
+            background: #2d3748;
+        }
+        
+        .preview-back .english-word {
+            color: #f7fafc;
+        }
+        
+        .category-card {
+            background: #1a202c;
+            border-color: #4a5568;
+        }
+        
+        .version-item {
+            background: #1a202c;
+        }
+        
+        .version-item:hover {
+            background: #2d3748;
+        }
+        
+        .comparison-col {
+            background: #1a202c;
+        }
+        
+        .save-progress {
+            background: #2d3748;
+            color: #f7fafc;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="bi bi-pencil-square me-2"></i>
+                    Editar Flashcard
+                </h1>
+                <p class="lead mb-0">Modifica los detalles de la flashcard #{{ flashcard.id }}</p>
+            </div>
+            <div>
+                <a href="{{ url_for('admin_flashcards') }}" class="btn btn-light btn-lg">
+                    <i class="bi bi-arrow-left me-2"></i>Volver
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row">
+        <!-- Formulario principal -->
+        <div class="col-lg-7">
+            <div class="form-card">
+                <form id="flashcardForm" method="POST" action="{{ url_for('edit_flashcard', flashcard_id=flashcard.id) }}">
+                    <input type="hidden" name="id" value="{{ flashcard.id }}">
+                    
+                    <!-- Información básica -->
+                    <div class="form-section">
+                        <h4 class="mb-4">
+                            <i class="bi bi-tags me-2 text-primary"></i>
+                            Clasificación
+                        </h4>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">
+                                Categoría <span class="required">*</span>
+                            </label>
+                            <div class="category-grid" id="categoryGrid">
+                                <div class="category-card {% if flashcard.category == 'Saludos' %}selected{% endif %}" data-category="Saludos" onclick="selectCategory('Saludos')">
+                                    <span class="category-icon">👋</span>
+                                    <span class="category-name">Saludos</span>
+                                </div>
+                                <div class="category-card {% if flashcard.category == 'Verbos' %}selected{% endif %}" data-category="Verbos" onclick="selectCategory('Verbos')">
+                                    <span class="category-icon">🏃</span>
+                                    <span class="category-name">Verbos</span>
+                                </div>
+                                <div class="category-card {% if flashcard.category == 'Sustantivos' %}selected{% endif %}" data-category="Sustantivos" onclick="selectCategory('Sustantivos')">
+                                    <span class="category-icon">📦</span>
+                                    <span class="category-name">Sustantivos</span>
+                                </div>
+                                <div class="category-card {% if flashcard.category == 'Adjetivos' %}selected{% endif %}" data-category="Adjetivos" onclick="selectCategory('Adjetivos')">
+                                    <span class="category-icon">🎨</span>
+                                    <span class="category-name">Adjetivos</span>
+                                </div>
+                                <div class="category-card {% if flashcard.category == 'Conectores' %}selected{% endif %}" data-category="Conectores" onclick="selectCategory('Conectores')">
+                                    <span class="category-icon">🔗</span>
+                                    <span class="category-name">Conectores</span>
+                                </div>
+                                <div class="category-card {% if flashcard.category == 'Vocabulario' %}selected{% endif %}" data-category="Vocabulario" onclick="selectCategory('Vocabulario')">
+                                    <span class="category-icon">📚</span>
+                                    <span class="category-name">Vocabulario</span>
+                                </div>
+                            </div>
+                            <input type="hidden" id="category" name="category" value="{{ flashcard.category }}" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">
+                                Dificultad <span class="required">*</span>
+                            </label>
+                            <div class="difficulty-selector">
+                                <div class="difficulty-option difficulty-basic {% if flashcard.difficulty == 'básico' %}selected{% endif %}" onclick="selectDifficulty('básico')">
+                                    <span class="difficulty-icon">🟢</span>
+                                    <div class="fw-bold">Básico</div>
+                                    <small>Para principiantes</small>
+                                </div>
+                                <div class="difficulty-option difficulty-intermediate {% if flashcard.difficulty == 'intermedio' %}selected{% endif %}" onclick="selectDifficulty('intermedio')">
+                                    <span class="difficulty-icon">🟡</span>
+                                    <div class="fw-bold">Intermedio</div>
+                                    <small>Conocimientos previos</small>
+                                </div>
+                                <div class="difficulty-option difficulty-advanced {% if flashcard.difficulty == 'avanzado' %}selected{% endif %}" onclick="selectDifficulty('avanzado')">
+                                    <span class="difficulty-icon">🔴</span>
+                                    <div class="fw-bold">Avanzado</div>
+                                    <small>Vocabulario complejo</small>
+                                </div>
+                            </div>
+                            <input type="hidden" id="difficulty" name="difficulty" value="{{ flashcard.difficulty }}" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Contenido -->
+                    <div class="form-section mt-4">
+                        <h4 class="mb-4">
+                            <i class="bi bi-file-text me-2 text-primary"></i>
+                            Contenido de la Flashcard
+                        </h4>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Palabra/Frase en español <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="spanish" name="spanish" 
+                                   value="{{ flashcard.spanish }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Traducción al inglés <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="english" name="english" 
+                                   value="{{ flashcard.english }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Frase de ejemplo</label>
+                            <textarea class="form-control" id="example" name="example" rows="2">{{ flashcard.example or '' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Notas adicionales</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="2">{{ flashcard.notes or '' }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Configuración adicional -->
+                    <div class="form-section mt-4">
+                        <h4 class="mb-4">
+                            <i class="bi bi-gear me-2 text-primary"></i>
+                            Configuración
+                        </h4>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Etiquetas</label>
+                            <input type="text" class="form-control" id="tags" name="tags" 
+                                   value="{{ flashcard.tags or '' }}" placeholder="separadas por comas">
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="isPublic" name="is_public" 
+                                           {% if flashcard.is_public %}checked{% endif %}>
+                                    <label class="form-check-label">
+                                        <i class="bi bi-globe"></i> Hacer pública
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="enableAudio" name="enable_audio"
+                                           {% if flashcard.enable_audio %}checked{% endif %}>
+                                    <label class="form-check-label">
+                                        <i class="bi bi-volume-up"></i> Audio de pronunciación
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-2"></i>Guardar Cambios
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="showHistory()">
+                            <i class="bi bi-clock-history me-2"></i>Historial
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" onclick="deleteFlashcard()">
+                            <i class="bi bi-trash me-2"></i>Eliminar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Panel de vista previa -->
+        <div class="col-lg-5">
+            <div class="preview-card">
+                <h5 class="mb-3">
+                    <i class="bi bi-eye me-2 text-primary"></i>
+                    Vista Previa Interactiva
+                </h5>
+                
+                <div id="flashcardPreview" class="flashcard-preview" onclick="flipPreview()">
+                    <div class="preview-front">
+                        <span class="badge bg-light text-dark mb-2" id="previewCategory">{{ flashcard.category }}</span>
+                        <div class="spanish-word" id="previewSpanish">{{ flashcard.spanish }}</div>
+                        <small class="mt-3 text-white-50">▼ Haz clic para ver respuesta ▼</small>
+                    </div>
+                    <div class="preview-back">
+                        <span class="badge" id="previewDifficultyBadge">{{ flashcard.difficulty }}</span>
+                        <div class="english-word mt-3" id="previewEnglish">{{ flashcard.english }}</div>
+                        <div class="small text-muted mt-3" id="previewExample">{{ flashcard.example or 'Sin ejemplo' }}</div>
+                        <small class="mt-3 text-muted">▼ Haz clic para volver ▼</small>
+                    </div>
+                </div>
+                
+                <div class="mt-3 text-center">
+                    <small class="text-muted">
+                        <i class="bi bi-arrow-repeat"></i> Haz clic en la tarjeta para voltear
+                    </small>
+                </div>
+                
+                <!-- Estadísticas -->
+                <div class="mt-4 p-3 bg-light rounded-3">
+                    <h6 class="mb-3">
+                        <i class="bi bi-bar-chart me-2"></i>
+                        Información de la flashcard
+                    </h6>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="small text-muted">Veces estudiada</div>
+                            <div class="fw-bold" id="statsStudied">{{ flashcard.times_studied or 0 }}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="small text-muted">Tasa de acierto</div>
+                            <div class="fw-bold" id="statsSuccess">{{ flashcard.success_rate or 0 }}%</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="small text-muted">Última revisión</div>
+                            <div class="fw-bold small" id="statsLastReview">{{ flashcard.last_reviewed or 'Nunca' }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Estado de la flashcard -->
+                <div class="mt-3">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Última modificación: {{ flashcard.updated_at[:16] if flashcard.updated_at else 'Nunca' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de historial de versiones -->
+<div class="modal fade" id="historyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-clock-history me-2"></i>
+                    Historial de Versiones
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="historyContent" class="version-history">
+                    <!-- Historial dinámico -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de comparación de cambios -->
+<div class="modal fade" id="compareModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-git-compare me-2"></i>
+                    Comparación de Cambios
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="compareContent">
+                <!-- Comparación dinámica -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="saveChanges()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress toast -->
+<div id="saveProgress" class="save-progress">
+    <div class="d-flex align-items-center">
+        <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="flex-grow-1">Guardando cambios...</div>
+    </div>
+    <div class="progress mt-2" style="height: 4px;">
+        <div class="progress-bar" id="saveProgressBar" style="width: 0%"></div>
+    </div>
+</div>
+
+<script>
+// Datos originales de la flashcard
+let originalData = {
+    category: "{{ flashcard.category }}",
+    difficulty: "{{ flashcard.difficulty }}",
+    spanish: "{{ flashcard.spanish }}",
+    english: "{{ flashcard.english }}",
+    example: "{{ flashcard.example or '' }}",
+    notes: "{{ flashcard.notes or '' }}",
+    tags: "{{ flashcard.tags or '' }}",
+    is_public: {{ 'true' if flashcard.is_public else 'false' }},
+    enable_audio: {{ 'true' if flashcard.enable_audio else 'false' }}
+};
+
+let currentData = {...originalData};
+let autoSaveTimer = null;
+
+// Seleccionar categoría
+function selectCategory(category) {
+    currentData.category = category;
+    document.getElementById('category').value = category;
+    
+    document.querySelectorAll('.category-card').forEach(card => {
+        if (card.getAttribute('data-category') === category) {
+            card.classList.add('selected');
+        } else {
+            card.classList.remove('selected');
+        }
+    });
+    
+    updatePreview();
+    checkChanges();
+}
+
+// Seleccionar dificultad
+function selectDifficulty(difficulty) {
+    currentData.difficulty = difficulty;
+    document.getElementById('difficulty').value = difficulty;
+    
+    document.querySelectorAll('.difficulty-option').forEach(opt => {
+        if (opt.textContent.includes(difficulty === 'básico' ? 'Básico' : difficulty === 'intermedio' ? 'Intermedio' : 'Avanzado')) {
+            opt.classList.add('selected');
+        } else {
+            opt.classList.remove('selected');
+        }
+    });
+    
+    updatePreview();
+    checkChanges();
+}
+
+// Actualizar vista previa
+function updatePreview() {
+    // Frente de la tarjeta
+    const spanish = document.getElementById('spanish').value.trim() || '-';
+    document.getElementById('previewSpanish').textContent = spanish;
+    
+    // Categoría
+    const categoryBadge = document.getElementById('previewCategory');
+    if (currentData.category) {
+        categoryBadge.textContent = currentData.category;
+        categoryBadge.className = `badge bg-${getCategoryColor(currentData.category)} mb-2`;
+    }
+    
+    // Reverso de la tarjeta
+    const english = document.getElementById('english').value.trim() || '-';
+    document.getElementById('previewEnglish').textContent = english;
+    
+    const example = document.getElementById('example').value.trim() || 'Sin ejemplo';
+    document.getElementById('previewExample').textContent = example;
+    
+    // Dificultad badge
+    const difficultyBadge = document.getElementById('previewDifficultyBadge');
+    if (currentData.difficulty) {
+        difficultyBadge.textContent = currentData.difficulty;
+        difficultyBadge.className = `badge difficulty-${currentData.difficulty}`;
+    }
+    
+    // Actualizar currentData con valores actuales
+    currentData = {
+        ...currentData,
+        spanish: document.getElementById('spanish').value,
+        english: document.getElementById('english').value,
+        example: document.getElementById('example').value,
+        notes: document.getElementById('notes').value,
+        tags: document.getElementById('tags').value,
+        is_public: document.getElementById('isPublic').checked,
+        enable_audio: document.getElementById('enableAudio').checked
+    };
+    
+    checkChanges();
+}
+
+// Obtener color para categoría
+function getCategoryColor(category) {
+    const colors = {
+        'Saludos': 'success',
+        'Verbos': 'warning',
+        'Sustantivos': 'info',
+        'Adjetivos': 'danger',
+        'Conectores': 'primary',
+        'Vocabulario': 'secondary'
+    };
+    return colors[category] || 'secondary';
+}
+
+// Verificar cambios
+function checkChanges() {
+    let hasChanges = false;
+    for (let key in originalData) {
+        if (originalData[key] != currentData[key]) {
+            hasChanges = true;
+            break;
+        }
+    }
+    
+    // Auto-guardado después de 3 segundos de inactividad
+    if (hasChanges) {
+        if (autoSaveTimer) clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(autoSave, 3000);
+    }
+    
+    return hasChanges;
+}
+
+// Auto-guardar
+function autoSave() {
+    if (!checkChanges()) return;
+    
+    const saveProgress = document.getElementById('saveProgress');
+    const progressBar = document.getElementById('saveProgressBar');
+    
+    saveProgress.style.display = 'block';
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 20;
+        progressBar.style.width = `${progress}%`;
+        if (progress >= 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+                saveProgress.style.display = 'none';
+                showToast('Cambios guardados automáticamente', 'success');
+            }, 500);
+        }
+    }, 200);
+    
+    // Simular guardado
+    setTimeout(() => {
+        for (let key in currentData) {
+            originalData[key] = currentData[key];
+        }
+    }, 1000);
+}
+
+// Mostrar historial
+function showHistory() {
+    // Simular historial de versiones
+    const versions = [
+        { date: '2024-01-15 10:30', user: 'admin', changes: 'Actualización de traducción' },
+        { date: '2024-01-10 15:20', user: 'admin', changes: 'Corrección de ejemplo' },
+        { date: '2024-01-05 09:15', user: 'admin', changes: 'Cambio de categoría' },
+        { date: '2024-01-01 14:00', user: 'admin', changes: 'Creación de la flashcard' }
+    ];
+    
+    const historyContent = document.getElementById('historyContent');
+    historyContent.innerHTML = versions.map(v => `
+        <div class="version-item" onclick="restoreVersion('${v.date}')">
+            <div class="d-flex justify-content-between">
+                <strong>${v.date}</strong>
+                <small class="text-muted">por ${v.user}</small>
+            </div>
+            <div class="small text-muted mt-1">${v.changes}</div>
+        </div>
+    `).join('');
+    
+    new bootstrap.Modal(document.getElementById('historyModal')).show();
+}
+
+// Restaurar versión
+function restoreVersion(date) {
+    Swal.fire({
+        title: 'Restaurar versión',
+        text: `¿Restaurar la versión del ${date}? Los cambios actuales se perderán.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, restaurar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            showToast('Versión restaurada correctamente', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('historyModal')).hide();
+        }
+    });
+}
+
+// Comparar cambios
+function compareChanges() {
+    const compareContent = document.getElementById('compareContent');
+    const fields = [
+        { label: 'Categoría', key: 'category' },
+        { label: 'Dificultad', key: 'difficulty' },
+        { label: 'Palabra en español', key: 'spanish' },
+        { label: 'Traducción al inglés', key: 'english' },
+        { label: 'Frase de ejemplo', key: 'example' },
+        { label: 'Notas', key: 'notes' },
+        { label: 'Etiquetas', key: 'tags' }
+    ];
+    
+    let html = '<div class="comparison-view">';
+    html += '<div class="comparison-col"><h6>Versión actual</h6>';
+    fields.forEach(field => {
+        let value = originalData[field.key] || '-';
+        html += `<div class="small mb-2"><strong>${field.label}:</strong><br>${value}</div>`;
+    });
+    html += '</div>';
+    
+    html += '<div class="comparison-col"><h6>Nuevos cambios</h6>';
+    fields.forEach(field => {
+        let newValue = currentData[field.key] || '-';
+        let className = '';
+        if (originalData[field.key] != currentData[field.key]) {
+            className = 'diff-modified';
+        }
+        html += `<div class="small mb-2"><strong>${field.label}:</strong><br><span class="${className}">${newValue}</span></div>`;
+    });
+    html += '</div>';
+    html += '</div>';
+    
+    compareContent.innerHTML = html;
+    new bootstrap.Modal(document.getElementById('compareModal')).show();
+}
+
+// Guardar cambios
+function saveChanges() {
+    document.getElementById('flashcardForm').submit();
+}
+
+// Eliminar flashcard
+function deleteFlashcard() {
+    Swal.fire({
+        title: 'Eliminar flashcard',
+        text: '¿Estás seguro? Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "{{ url_for('delete_flashcard', flashcard_id=flashcard.id) }}";
+        }
+    });
+}
+
+// Mostrar toast
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type} border-0 position-fixed bottom-0 end-0 m-3`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    toast.addEventListener('hidden.bs.toast', () => toast.remove());
+}
+
+// Voltear vista previa
+let isFlipped = false;
+function flipPreview() {
+    const preview = document.getElementById('flashcardPreview');
+    if (!isFlipped) {
+        preview.classList.add('flipped');
+    } else {
+        preview.classList.remove('flipped');
+    }
+    isFlipped = !isFlipped;
+}
+
+// Escuchar cambios en el formulario
+document.getElementById('spanish').addEventListener('input', updatePreview);
+document.getElementById('english').addEventListener('input', updatePreview);
+document.getElementById('example').addEventListener('input', updatePreview);
+document.getElementById('notes').addEventListener('input', updatePreview);
+document.getElementById('tags').addEventListener('input', updatePreview);
+document.getElementById('isPublic').addEventListener('change', updatePreview);
+document.getElementById('enableAudio').addEventListener('change', updatePreview);
+
+// Confirmar antes de salir
+window.addEventListener('beforeunload', function(e) {
+    if (checkChanges()) {
+        e.preventDefault();
+        e.returnValue = 'Tienes cambios sin guardar. ¿Estás seguro de salir?';
+    }
+});
+
+// Inicializar
+document.addEventListener('DOMContentLoaded', function() {
+    updatePreview();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,791 @@
+/* ========================================
+   ENGLISH LEARNING HUB - ESTILOS DEL DASHBOARD
+   Estilos específicos para la página de dashboard
+   ======================================== */
+
+/* ========================================
+   DASHBOARD HEADER
+   ======================================== */
+.dashboard-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-radius: 0 0 30px 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-header::before {
+    content: '📊';
+    position: absolute;
+    font-size: 200px;
+    opacity: 0.05;
+    bottom: -50px;
+    right: -50px;
+    transform: rotate(-15deg);
+}
+
+.welcome-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.welcome-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-text {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+/* ========================================
+   TARJETAS DE ESTADÍSTICAS
+   ======================================== */
+.stats-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.stats-card:hover::before {
+    transform: scaleX(1);
+}
+
+.stats-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.stats-icon-primary {
+    background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+    color: #667eea;
+}
+
+.stats-icon-success {
+    background: linear-gradient(135deg, #28a74520 0%, #20c99720 100%);
+    color: #28a745;
+}
+
+.stats-icon-warning {
+    background: linear-gradient(135deg, #ffc10720 0%, #fd7e1420 100%);
+    color: #ffc107;
+}
+
+.stats-icon-danger {
+    background: linear-gradient(135deg, #dc354520 0%, #ff6b6b20 100%);
+    color: #dc3545;
+}
+
+.stats-number {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: #2d3748;
+}
+
+.stats-label {
+    font-size: 0.85rem;
+    color: #718096;
+    margin-bottom: 0.5rem;
+}
+
+.stats-trend {
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.trend-up {
+    color: #28a745;
+}
+
+.trend-down {
+    color: #dc3545;
+}
+
+/* ========================================
+   GRÁFICOS
+   ======================================== */
+.chart-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.chart-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* ========================================
+   PROGRESO DE NIVEL
+   ======================================== */
+.level-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 1.5rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.level-card::before {
+    content: '🏆';
+    position: absolute;
+    font-size: 100px;
+    opacity: 0.1;
+    bottom: -20px;
+    right: -20px;
+}
+
+.level-badge {
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.level-info {
+    margin-bottom: 1rem;
+}
+
+.level-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.level-next {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.level-progress {
+    margin-top: 1rem;
+}
+
+.progress {
+    height: 8px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.progress-bar {
+    background: white;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.progress-text {
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    text-align: right;
+    opacity: 0.9;
+}
+
+/* ========================================
+   ACTIVIDAD RECIENTE
+   ======================================== */
+.activity-timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.activity-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, #667eea, #764ba2);
+}
+
+.activity-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.activity-item::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 0.5rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #667eea;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover::before {
+    transform: scale(1.2);
+    background: #764ba2;
+}
+
+.activity-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    color: #667eea;
+    margin-right: 1rem;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: #2d3748;
+}
+
+.activity-description {
+    font-size: 0.85rem;
+    color: #718096;
+    margin-bottom: 0.25rem;
+}
+
+.activity-time {
+    font-size: 0.7rem;
+    color: #a0aec0;
+}
+
+/* ========================================
+   LOGROS Y MEDALLAS
+   ======================================== */
+.achievement-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+}
+
+.achievement-card:hover {
+    transform: translateX(5px);
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.achievement-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.achievement-info {
+    flex: 1;
+}
+
+.achievement-name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: #2d3748;
+}
+
+.achievement-date {
+    font-size: 0.7rem;
+    color: #a0aec0;
+}
+
+.achievement-points {
+    color: #ffc107;
+    font-weight: 600;
+}
+
+.medal {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.medal:hover {
+    transform: scale(1.05);
+}
+
+.medal-gold {
+    background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+    color: white;
+}
+
+.medal-silver {
+    background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%);
+    color: white;
+}
+
+.medal-bronze {
+    background: linear-gradient(135deg, #cd7f32 0%, #b87333 100%);
+    color: white;
+}
+
+.medal-default {
+    background: #e9ecef;
+    color: #6c757d;
+}
+
+/* ========================================
+   RECOMENDACIONES
+   ======================================== */
+.recommendation-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.recommendation-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #667eea, #764ba2);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.recommendation-card:hover {
+    transform: translateX(5px);
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.recommendation-card:hover::before {
+    transform: scaleY(1);
+}
+
+.recommendation-icon {
+    font-size: 1.5rem;
+    color: #667eea;
+    margin-right: 1rem;
+}
+
+.recommendation-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: #2d3748;
+}
+
+.recommendation-description {
+    font-size: 0.8rem;
+    color: #718096;
+}
+
+/* ========================================
+   MÓDULOS DESTACADOS
+   ======================================== */
+.module-card {
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: 15px;
+    background: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid #e2e8f0;
+}
+
+.module-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    border-color: #667eea;
+}
+
+.module-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.module-card:hover .module-icon {
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.module-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+}
+
+.module-progress {
+    margin-top: 1rem;
+}
+
+.module-progress-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: #e2e8f0;
+    overflow: hidden;
+}
+
+.module-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+}
+
+.module-progress-text {
+    font-size: 0.7rem;
+    margin-top: 0.25rem;
+    color: #718096;
+}
+
+/* ========================================
+   ANIMACIONES
+   ======================================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes glow {
+    0% {
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+    }
+    100% {
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.8);
+    }
+}
+
+.animate-card {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.animate-item {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* ========================================
+   FILTROS Y PERIODOS
+   ======================================== */
+.period-selector {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.period-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    background: #f8f9fa;
+    border: 1px solid #e2e8f0;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.period-btn:hover {
+    background: #e9ecef;
+}
+
+.period-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+}
+
+/* ========================================
+   NOTIFICACIONES
+   ======================================== */
+.dashboard-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #28a745;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    z-index: 1000;
+    animation: slideInRight 0.3s ease-out, fadeOut 3s forwards;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; }
+}
+
+/* ========================================
+   MEDIA QUERIES
+   ======================================== */
+@media (max-width: 1200px) {
+    .stats-number {
+        font-size: 1.5rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+}
+
+@media (max-width: 992px) {
+    .dashboard-header {
+        padding: 1.5rem 0;
+    }
+    
+    .welcome-title {
+        font-size: 1.5rem;
+    }
+    
+    .stats-card {
+        margin-bottom: 1rem;
+    }
+    
+    .chart-container {
+        height: 220px;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-number {
+        font-size: 1.2rem;
+    }
+    
+    .stats-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .activity-timeline {
+        padding-left: 1.5rem;
+    }
+    
+    .activity-item::before {
+        left: -1.5rem;
+    }
+    
+    .chart-container {
+        height: 200px;
+    }
+    
+    .period-selector {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .welcome-title {
+        font-size: 1.2rem;
+    }
+    
+    .stats-card {
+        padding: 1rem;
+    }
+    
+    .stats-number {
+        font-size: 1rem;
+    }
+    
+    .chart-container {
+        height: 180px;
+    }
+    
+    .achievement-card {
+        padding: 0.75rem;
+    }
+    
+    .achievement-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+}
+
+/* ========================================
+   MODO OSCURO
+   ======================================== */
+@media (prefers-color-scheme: dark) {
+    .stats-card,
+    .chart-card,
+    .achievement-card,
+    .module-card {
+        background: #2d3748;
+    }
+    
+    .stats-number,
+    .chart-title,
+    .achievement-name,
+    .module-title,
+    .activity-title {
+        color: #f7fafc;
+    }
+    
+    .stats-label,
+    .achievement-date,
+    .module-progress-text,
+    .activity-description,
+    .activity-time {
+        color: #a0aec0;
+    }
+    
+    .activity-icon {
+        background: #1a202c;
+    }
+    
+    .period-btn {
+        background: #2d3748;
+        border-color: #4a5568;
+        color: #e2e8f0;
+    }
+    
+    .period-btn:hover {
+        background: #4a5568;
+    }
+    
+    .recommendation-card {
+        background: #2d3748;
+    }
+    
+    .recommendation-card:hover {
+        background: #4a5568;
+    }
+    
+    .recommendation-title {
+        color: #f7fafc;
+    }
+    
+    .recommendation-description {
+        color: #cbd5e0;
+    }
+}

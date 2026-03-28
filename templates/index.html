@@ -1,0 +1,712 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - English Learning Hub | Aprende Inglés Divirtiéndote{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section Animado */
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+        background-repeat: no-repeat;
+        background-position: bottom;
+        background-size: cover;
+        opacity: 0.3;
+        pointer-events: none;
+    }
+    
+    /* Animación de escritura */
+    .typing-animation {
+        overflow: hidden;
+        border-right: 3px solid white;
+        white-space: nowrap;
+        animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+    }
+    
+    @keyframes typing {
+        from { width: 0; }
+        to { width: 100%; }
+    }
+    
+    @keyframes blink-caret {
+        from, to { border-color: transparent; }
+        50% { border-color: white; }
+    }
+    
+    /* Tarjetas flotantes */
+    .floating-card {
+        transition: all 0.3s ease;
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    
+    /* Contador animado */
+    .counter-number {
+        font-size: 3rem;
+        font-weight: bold;
+        background: linear-gradient(45deg, #ff595e, #ff9d59, #ffd459, #8ac926, #1982c4);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: counterPulse 2s infinite;
+    }
+    
+    @keyframes counterPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    /* Testimonios */
+    .testimonial-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .testimonial-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    
+    .testimonial-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 1rem;
+    }
+    
+    /* Características */
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .feature-icon:hover {
+        transform: rotate(360deg) scale(1.1);
+    }
+    
+    /* Sección de planes */
+    .pricing-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .pricing-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .pricing-card.popular {
+        transform: scale(1.05);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        border: 2px solid #ffd459;
+    }
+    
+    .popular-badge {
+        position: absolute;
+        top: 20px;
+        right: -30px;
+        background: linear-gradient(45deg, #ffd459, #ff9d59);
+        color: white;
+        padding: 0.5rem 2rem;
+        transform: rotate(45deg);
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    /* Call to Action */
+    .cta-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 30px;
+        padding: 4rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .cta-section::before {
+        content: '✨';
+        position: absolute;
+        font-size: 200px;
+        opacity: 0.1;
+        bottom: -50px;
+        right: -50px;
+        transform: rotate(-15deg);
+    }
+    
+    /* Estadísticas */
+    .stat-item {
+        text-align: center;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-item:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-section {
+            min-height: 60vh;
+        }
+        
+        .typing-animation {
+            white-space: normal;
+            border-right: none;
+            animation: none;
+        }
+        
+        .pricing-card.popular {
+            transform: scale(1);
+        }
+        
+        .cta-section {
+            padding: 2rem;
+        }
+        
+        .counter-number {
+            font-size: 2rem;
+        }
+    }
+    
+    /* Animación de entrada */
+    .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s ease;
+    }
+    
+    .animate-on-scroll.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container position-relative z-1">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0">
+                <h1 class="display-4 fw-bold mb-4 typing-animation">
+                    🌍 Aprende Inglés <span class="text-warning">Divirtiéndote</span>
+                </h1>
+                <p class="lead mb-4">
+                    La plataforma educativa más completa para hispanohablantes. 
+                    Más de 1000 ejercicios interactivos, flashcards, exámenes y sistema de logros.
+                </p>
+                <div class="d-flex gap-3 flex-wrap justify-content-center justify-content-lg-start">
+                    <a href="{{ url_for('register') }}" class="btn btn-rainbow btn-lg px-4">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Comenzar Gratis
+                    </a>
+                    <a href="#features" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-play-circle me-2"></i>Ver Demo
+                    </a>
+                </div>
+                <div class="mt-4">
+                    <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+                        <div class="text-center">
+                            <div class="counter-number" data-target="1000">0</div>
+                            <small>Ejercicios</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="counter-number" data-target="500">0</div>
+                            <small>Flashcards</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="counter-number" data-target="10000">0</div>
+                            <small>Estudiantes</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="floating-card">
+                    <img src="https://cdn-icons-png.flaticon.com/512/4186/4186784.png" 
+                         alt="Learning Illustration" 
+                         class="img-fluid" 
+                         style="max-width: 80%; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Características Principales -->
+<section id="features" class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">
+                ¿Por qué elegir <span class="rainbow-text">English Learning Hub</span>?
+            </h2>
+            <p class="lead text-muted">La mejor manera de aprender inglés, diseñada especialmente para hispanohablantes</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3 animate-on-scroll">
+                <div class="feature-card text-center p-4 bg-white rounded-4 shadow-sm h-100">
+                    <div class="feature-icon mx-auto mb-3">
+                        <i class="bi bi-question-circle-fill text-white fs-1"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Preguntas en Inglés</h5>
+                    <p class="text-muted">Domina todos los tipos de preguntas con ejercicios específicos para hispanohablantes</p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3 animate-on-scroll">
+                <div class="feature-card text-center p-4 bg-white rounded-4 shadow-sm h-100">
+                    <div class="feature-icon mx-auto mb-3">
+                        <i class="bi bi-file-text-fill text-white fs-1"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Oraciones Simples</h5>
+                    <p class="text-muted">Aprende la estructura básica de oraciones en todos los tiempos verbales</p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3 animate-on-scroll">
+                <div class="feature-card text-center p-4 bg-white rounded-4 shadow-sm h-100">
+                    <div class="feature-icon mx-auto mb-3">
+                        <i class="bi bi-link-45deg text-white fs-1"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Oraciones Compuestas</h5>
+                    <p class="text-muted">Domina conectores y estructuras complejas para expresarte con fluidez</p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3 animate-on-scroll">
+                <div class="feature-card text-center p-4 bg-white rounded-4 shadow-sm h-100">
+                    <div class="feature-icon mx-auto mb-3">
+                        <i class="bi bi-diagram-3-fill text-white fs-1"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Conectores Avanzados</h5>
+                    <p class="text-muted">Usa correctamente todos los conectores del inglés para una comunicación natural</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Estadísticas -->
+<section class="py-5 bg-gradient text-white">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3 animate-on-scroll">
+                <div class="stat-item">
+                    <i class="bi bi-trophy-fill fs-1 mb-2"></i>
+                    <div class="counter-number display-4" data-target="100">0</div>
+                    <h6>Ejercicios por módulo</h6>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 animate-on-scroll">
+                <div class="stat-item">
+                    <i class="bi bi-star-fill fs-1 mb-2"></i>
+                    <div class="counter-number display-4" data-target="500">0</div>
+                    <h6>Puntos máximos</h6>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 animate-on-scroll">
+                <div class="stat-item">
+                    <i class="bi bi-award-fill fs-1 mb-2"></i>
+                    <div class="counter-number display-4" data-target="50">0</div>
+                    <h6>Medallas disponibles</h6>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 animate-on-scroll">
+                <div class="stat-item">
+                    <i class="bi bi-people-fill fs-1 mb-2"></i>
+                    <div class="counter-number display-4" data-target="10000">0</div>
+                    <h6>Estudiantes activos</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Cómo funciona -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">📚 ¿Cómo funciona?</h2>
+            <p class="lead text-muted">Tres pasos simples para dominar el inglés</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4 animate-on-scroll">
+                <div class="text-center">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <span class="fs-1 fw-bold">1</span>
+                    </div>
+                    <h5 class="fw-bold">Regístrate Gratis</h5>
+                    <p class="text-muted">Crea tu cuenta en segundos y accede a todo el contenido educativo</p>
+                </div>
+            </div>
+            <div class="col-md-4 animate-on-scroll">
+                <div class="text-center">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <span class="fs-1 fw-bold">2</span>
+                    </div>
+                    <h5 class="fw-bold">Practica a tu Ritmo</h5>
+                    <p class="text-muted">Elige entre cientos de ejercicios, flashcards y exámenes</p>
+                </div>
+            </div>
+            <div class="col-md-4 animate-on-scroll">
+                <div class="text-center">
+                    <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <span class="fs-1 fw-bold">3</span>
+                    </div>
+                    <h5 class="fw-bold">Gana Logros</h5>
+                    <p class="text-muted">Obtén medallas, estrellas y sube de nivel mientras aprendes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonios -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">💬 Lo que dicen nuestros estudiantes</h2>
+            <p class="lead text-muted">Miles de hispanohablantes ya están mejorando su inglés</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4 animate-on-scroll">
+                <div class="testimonial-card h-100">
+                    <div class="testimonial-avatar">
+                        <i class="bi bi-person-circle fs-1 text-white"></i>
+                    </div>
+                    <p class="mb-3">"Esta plataforma cambió mi forma de aprender inglés. Los ejercicios están diseñados específicamente para hispanohablantes y los conectores fueron mi mayor desafío."</p>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="mb-0 fw-bold">María González</h6>
+                            <small class="text-muted">Estudiante de nivel intermedio</small>
+                        </div>
+                        <div class="text-warning">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 animate-on-scroll">
+                <div class="testimonial-card h-100">
+                    <div class="testimonial-avatar">
+                        <i class="bi bi-person-circle fs-1 text-white"></i>
+                    </div>
+                    <p class="mb-3">"¡Increíble! Aprendí a formar preguntas correctamente después de semanas de práctica. El sistema de puntuación me motiva a seguir mejorando cada día."</p>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="mb-0 fw-bold">Carlos Rodríguez</h6>
+                            <small class="text-muted">Profesional</small>
+                        </div>
+                        <div class="text-warning">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-half"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 animate-on-scroll">
+                <div class="testimonial-card h-100">
+                    <div class="testimonial-avatar">
+                        <i class="bi bi-person-circle fs-1 text-white"></i>
+                    </div>
+                    <p class="mb-3">"Las flashcards son excelentes para memorizar vocabulario. Me encanta el sistema de medallas y logros, me mantiene motivado a practicar todos los días."</p>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="mb-0 fw-bold">Ana Martínez</h6>
+                            <small class="text-muted">Estudiante universitaria</small>
+                        </div>
+                        <div class="text-warning">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Planes de Estudio -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">🎯 Planes de Estudio</h2>
+            <p class="lead text-muted">Elige el plan que mejor se adapte a tus necesidades</p>
+        </div>
+        
+        <div class="row g-4 align-items-center">
+            <div class="col-md-6 col-lg-4 animate-on-scroll">
+                <div class="pricing-card p-4">
+                    <h3 class="fw-bold mb-3">Básico</h3>
+                    <div class="display-4 fw-bold text-primary mb-3">Gratis</div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>100 ejercicios</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>50 flashcards</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Exámenes básicos</li>
+                        <li class="mb-2 text-muted"><i class="bi bi-x-circle-fill me-2"></i>Sistema de logros</li>
+                    </ul>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100">Comenzar Gratis</a>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 animate-on-scroll">
+                <div class="pricing-card popular p-4">
+                    <div class="popular-badge">🔥 MÁS POPULAR</div>
+                    <h3 class="fw-bold mb-3">Premium</h3>
+                    <div class="display-4 fw-bold text-primary mb-3">$9.99<small class="fs-6">/mes</small></div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Todos los ejercicios</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Todas las flashcards</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Todos los exámenes</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Sistema de logros y medallas</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Certificado digital</li>
+                    </ul>
+                    <a href="{{ url_for('register') }}" class="btn btn-rainbow w-100">Suscribirse</a>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 animate-on-scroll">
+                <div class="pricing-card p-4">
+                    <h3 class="fw-bold mb-3">Anual</h3>
+                    <div class="display-4 fw-bold text-primary mb-3">$99<small class="fs-6">/año</small></div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Todo Premium</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>2 meses gratis</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Soporte prioritario</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Clases en vivo</li>
+                    </ul>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100">Suscribirse</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5">
+    <div class="container">
+        <div class="cta-section text-white text-center">
+            <h2 class="display-5 fw-bold mb-3">¿Listo para dominar el inglés?</h2>
+            <p class="lead mb-4">Únete a miles de estudiantes hispanohablantes que ya están mejorando su inglés</p>
+            <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-5">
+                <i class="bi bi-arrow-right-circle me-2"></i>Crear Cuenta Gratis
+            </a>
+            <p class="mt-3 mb-0">Sin tarjeta de crédito requerida</p>
+        </div>
+    </div>
+</section>
+
+<!-- Sección de Preguntas Frecuentes -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">❓ Preguntas Frecuentes</h2>
+            <p class="lead text-muted">Resolvemos tus dudas</p>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item mb-3 border-0 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button rounded-3" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                <i class="bi bi-question-circle me-2 text-primary"></i>
+                                ¿Necesito conocimientos previos de inglés?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                ¡No! Nuestra plataforma está diseñada para todos los niveles, desde principiantes hasta avanzados. Los ejercicios están organizados por dificultad y puedes empezar desde cero.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item mb-3 border-0 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed rounded-3" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                <i class="bi bi-clock me-2 text-primary"></i>
+                                ¿Cuánto tiempo debo practicar al día?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Recomendamos practicar entre 15-30 minutos diarios para ver resultados óptimos. La plataforma guarda tu progreso para que puedas continuar donde lo dejaste.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item mb-3 border-0 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed rounded-3" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                <i class="bi bi-device-ssd me-2 text-primary"></i>
+                                ¿Puedo acceder desde cualquier dispositivo?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                ¡Sí! Nuestra plataforma es totalmente responsive y funciona en computadoras, tablets y teléfonos móviles. Tu progreso se sincroniza automáticamente.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item border-0 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed rounded-3" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                <i class="bi bi-trophy me-2 text-primary"></i>
+                                ¿Cómo funciona el sistema de logros?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Ganas puntos por cada ejercicio correcto, mantienes rachas de aciertos, subes de nivel y desbloqueas medallas. Cada logro te da estrellas que puedes usar para acceder a contenido exclusivo.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animación de contadores
+    function animateCounter(element, target) {
+        let current = 0;
+        const increment = target / 50;
+        const interval = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                element.textContent = target;
+                clearInterval(interval);
+            } else {
+                element.textContent = Math.floor(current);
+            }
+        }, 40);
+    }
+    
+    // Observador de scroll para animaciones
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                
+                // Animar contadores si están en la sección visible
+                const counters = entry.target.querySelectorAll('.counter-number');
+                counters.forEach(counter => {
+                    if (!counter.hasAttribute('data-animated')) {
+                        const target = parseInt(counter.getAttribute('data-target'));
+                        animateCounter(counter, target);
+                        counter.setAttribute('data-animated', 'true');
+                    }
+                });
+            }
+        });
+    }, observerOptions);
+    
+    // Observar elementos con animación
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+    });
+    
+    // Trigger inicial para elementos visibles
+    setTimeout(() => {
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight) {
+                el.classList.add('visible');
+            }
+        });
+    }, 100);
+    
+    // Efecto de partículas en hover de botones
+    const buttons = document.querySelectorAll('.btn-rainbow');
+    buttons.forEach(btn => {
+        btn.addEventListener('mouseenter', (e) => {
+            const rect = btn.getBoundingClientRect();
+            createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '✨');
+        });
+    });
+    
+    // Función para crear partículas
+    function createParticles(x, y, emoji) {
+        for (let i = 0; i < 10; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = emoji;
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            particle.style.position = 'fixed';
+            particle.style.pointerEvents = 'none';
+            particle.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            particle.style.animation = 'floatUp 1s ease-out forwards';
+            document.body.appendChild(particle);
+            
+            setTimeout(() => particle.remove(), 1000);
+        }
+    }
+</script>
+{% endblock %}

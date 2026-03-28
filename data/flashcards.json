@@ -1,0 +1,502 @@
+[
+    {
+        "id": "fc_1",
+        "category": "Saludos",
+        "spanish": "Hola, ¿cómo estás?",
+        "english": "Hello, how are you?",
+        "example": "Hello, how are you today? I hope you're doing well.",
+        "difficulty": "básico",
+        "tags": ["saludos", "conversación", "básico"],
+        "pronunciation": "həˈləʊ haʊ ɑː juː"
+    },
+    {
+        "id": "fc_2",
+        "category": "Saludos",
+        "spanish": "Buenos días",
+        "english": "Good morning",
+        "example": "Good morning! Did you sleep well?",
+        "difficulty": "básico",
+        "tags": ["saludos", "mañana"],
+        "pronunciation": "ɡʊd ˈmɔːnɪŋ"
+    },
+    {
+        "id": "fc_3",
+        "category": "Saludos",
+        "spanish": "Buenas tardes",
+        "english": "Good afternoon",
+        "example": "Good afternoon, welcome to our class!",
+        "difficulty": "básico",
+        "tags": ["saludos", "tarde"],
+        "pronunciation": "ɡʊd ˌɑːftəˈnuːn"
+    },
+    {
+        "id": "fc_4",
+        "category": "Saludos",
+        "spanish": "Buenas noches",
+        "english": "Good evening / Good night",
+        "example": "Good evening, have a nice dinner! / Good night, sleep well!",
+        "difficulty": "básico",
+        "tags": ["saludos", "noche"],
+        "pronunciation": "ɡʊd ˈiːvnɪŋ / ɡʊd naɪt"
+    },
+    {
+        "id": "fc_5",
+        "category": "Saludos",
+        "spanish": "Mucho gusto",
+        "english": "Nice to meet you",
+        "example": "Nice to meet you! I'm John.",
+        "difficulty": "básico",
+        "tags": ["saludos", "presentación"],
+        "pronunciation": "naɪs tuː miːt juː"
+    },
+    {
+        "id": "fc_6",
+        "category": "Verbos",
+        "spanish": "Correr",
+        "english": "To run",
+        "example": "I run every morning in the park.",
+        "difficulty": "básico",
+        "tags": ["verbos", "acción"],
+        "pronunciation": "tuː rʌn"
+    },
+    {
+        "id": "fc_7",
+        "category": "Verbos",
+        "spanish": "Comer",
+        "english": "To eat",
+        "example": "She eats breakfast at 7 AM.",
+        "difficulty": "básico",
+        "tags": ["verbos", "alimentación"],
+        "pronunciation": "tuː iːt"
+    },
+    {
+        "id": "fc_8",
+        "category": "Verbos",
+        "spanish": "Dormir",
+        "english": "To sleep",
+        "example": "I need to sleep eight hours.",
+        "difficulty": "básico",
+        "tags": ["verbos", "descanso"],
+        "pronunciation": "tuː sliːp"
+    },
+    {
+        "id": "fc_9",
+        "category": "Verbos",
+        "spanish": "Estudiar",
+        "english": "To study",
+        "example": "He studies English every day.",
+        "difficulty": "básico",
+        "tags": ["verbos", "educación"],
+        "pronunciation": "tuː ˈstʌdi"
+    },
+    {
+        "id": "fc_10",
+        "category": "Verbos",
+        "spanish": "Trabajar",
+        "english": "To work",
+        "example": "They work in a big company.",
+        "difficulty": "básico",
+        "tags": ["verbos", "profesión"],
+        "pronunciation": "tuː wɜːk"
+    },
+    {
+        "id": "fc_11",
+        "category": "Verbos",
+        "spanish": "Viajar",
+        "english": "To travel",
+        "example": "We love to travel to new places.",
+        "difficulty": "intermedio",
+        "tags": ["verbos", "viajes"],
+        "pronunciation": "tuː ˈtrævəl"
+    },
+    {
+        "id": "fc_12",
+        "category": "Sustantivos",
+        "spanish": "Casa",
+        "english": "House",
+        "example": "This is a beautiful house with a garden.",
+        "difficulty": "básico",
+        "tags": ["sustantivos", "hogar"],
+        "pronunciation": "haʊs"
+    },
+    {
+        "id": "fc_13",
+        "category": "Sustantivos",
+        "spanish": "Coche",
+        "english": "Car",
+        "example": "I bought a new car yesterday.",
+        "difficulty": "básico",
+        "tags": ["sustantivos", "transporte"],
+        "pronunciation": "kɑː"
+    },
+    {
+        "id": "fc_14",
+        "category": "Sustantivos",
+        "spanish": "Libro",
+        "english": "Book",
+        "example": "This book is very interesting.",
+        "difficulty": "básico",
+        "tags": ["sustantivos", "lectura"],
+        "pronunciation": "bʊk"
+    },
+    {
+        "id": "fc_15",
+        "category": "Sustantivos",
+        "spanish": "Escuela",
+        "english": "School",
+        "example": "The school is close to my house.",
+        "difficulty": "básico",
+        "tags": ["sustantivos", "educación"],
+        "pronunciation": "skuːl"
+    },
+    {
+        "id": "fc_16",
+        "category": "Sustantivos",
+        "spanish": "Familia",
+        "english": "Family",
+        "example": "My family is very important to me.",
+        "difficulty": "básico",
+        "tags": ["sustantivos", "familia"],
+        "pronunciation": "ˈfæməli"
+    },
+    {
+        "id": "fc_17",
+        "category": "Sustantivos",
+        "spanish": "Amigo",
+        "english": "Friend",
+        "example": "He is my best friend.",
+        "difficulty": "básico",
+        "tags": ["sustantivos", "amistad"],
+        "pronunciation": "frend"
+    },
+    {
+        "id": "fc_18",
+        "category": "Adjetivos",
+        "spanish": "Grande",
+        "english": "Big",
+        "example": "This is a big house.",
+        "difficulty": "básico",
+        "tags": ["adjetivos", "tamaño"],
+        "pronunciation": "bɪɡ"
+    },
+    {
+        "id": "fc_19",
+        "category": "Adjetivos",
+        "spanish": "Pequeño",
+        "english": "Small",
+        "example": "I have a small car.",
+        "difficulty": "básico",
+        "tags": ["adjetivos", "tamaño"],
+        "pronunciation": "smɔːl"
+    },
+    {
+        "id": "fc_20",
+        "category": "Adjetivos",
+        "spanish": "Bonito",
+        "english": "Beautiful",
+        "example": "What a beautiful view!",
+        "difficulty": "intermedio",
+        "tags": ["adjetivos", "apariencia"],
+        "pronunciation": "ˈbjuːtɪfəl"
+    },
+    {
+        "id": "fc_21",
+        "category": "Adjetivos",
+        "spanish": "Feliz",
+        "english": "Happy",
+        "example": "I'm so happy today!",
+        "difficulty": "básico",
+        "tags": ["adjetivos", "emociones"],
+        "pronunciation": "ˈhæpi"
+    },
+    {
+        "id": "fc_22",
+        "category": "Adjetivos",
+        "spanish": "Triste",
+        "english": "Sad",
+        "example": "Why are you sad?",
+        "difficulty": "básico",
+        "tags": ["adjetivos", "emociones"],
+        "pronunciation": "sæd"
+    },
+    {
+        "id": "fc_23",
+        "category": "Adjetivos",
+        "spanish": "Rápido",
+        "english": "Fast",
+        "example": "He is a fast runner.",
+        "difficulty": "básico",
+        "tags": ["adjetivos", "velocidad"],
+        "pronunciation": "fɑːst"
+    },
+    {
+        "id": "fc_24",
+        "category": "Adjetivos",
+        "spanish": "Nuevo",
+        "english": "New",
+        "example": "This is my new phone.",
+        "difficulty": "básico",
+        "tags": ["adjetivos", "estado"],
+        "pronunciation": "njuː"
+    },
+    {
+        "id": "fc_25",
+        "category": "Conectores",
+        "spanish": "Pero",
+        "english": "But",
+        "example": "I like coffee, but I don't like tea.",
+        "difficulty": "intermedio",
+        "tags": ["conectores", "contraste"],
+        "pronunciation": "bʌt"
+    },
+    {
+        "id": "fc_26",
+        "category": "Conectores",
+        "spanish": "Y",
+        "english": "And",
+        "example": "I study English and Spanish.",
+        "difficulty": "básico",
+        "tags": ["conectores", "adición"],
+        "pronunciation": "ænd"
+    },
+    {
+        "id": "fc_27",
+        "category": "Conectores",
+        "spanish": "Porque",
+        "english": "Because",
+        "example": "I'm happy because it's sunny.",
+        "difficulty": "intermedio",
+        "tags": ["conectores", "causa"],
+        "pronunciation": "bɪˈkɒz"
+    },
+    {
+        "id": "fc_28",
+        "category": "Conectores",
+        "spanish": "Aunque",
+        "english": "Although",
+        "example": "Although it's raining, I'll go out.",
+        "difficulty": "avanzado",
+        "tags": ["conectores", "concesión"],
+        "pronunciation": "ɔːlˈðəʊ"
+    },
+    {
+        "id": "fc_29",
+        "category": "Conectores",
+        "spanish": "Sin embargo",
+        "english": "However",
+        "example": "The product is expensive. However, it's high quality.",
+        "difficulty": "avanzado",
+        "tags": ["conectores", "contraste"],
+        "pronunciation": "haʊˈevə"
+    },
+    {
+        "id": "fc_30",
+        "category": "Conectores",
+        "spanish": "Además",
+        "english": "Moreover",
+        "example": "The hotel is cheap. Moreover, it's very clean.",
+        "difficulty": "avanzado",
+        "tags": ["conectores", "adición"],
+        "pronunciation": "mɔːrˈəʊvə"
+    },
+    {
+        "id": "fc_31",
+        "category": "Vocabulario",
+        "spanish": "Computadora",
+        "english": "Computer",
+        "example": "I use my computer for work.",
+        "difficulty": "intermedio",
+        "tags": ["tecnología", "oficina"],
+        "pronunciation": "kəmˈpjuːtə"
+    },
+    {
+        "id": "fc_32",
+        "category": "Vocabulario",
+        "spanish": "Teléfono",
+        "english": "Phone",
+        "example": "Can I use your phone?",
+        "difficulty": "básico",
+        "tags": ["tecnología", "comunicación"],
+        "pronunciation": "fəʊn"
+    },
+    {
+        "id": "fc_33",
+        "category": "Vocabulario",
+        "spanish": "Internet",
+        "english": "Internet",
+        "example": "The internet is very fast here.",
+        "difficulty": "intermedio",
+        "tags": ["tecnología", "conexión"],
+        "pronunciation": "ˈɪntənet"
+    },
+    {
+        "id": "fc_34",
+        "category": "Vocabulario",
+        "spanish": "Email",
+        "english": "Email",
+        "example": "I'll send you an email later.",
+        "difficulty": "intermedio",
+        "tags": ["comunicación", "tecnología"],
+        "pronunciation": "ˈiːmeɪl"
+    },
+    {
+        "id": "fc_35",
+        "category": "Vocabulario",
+        "spanish": "Ciudad",
+        "english": "City",
+        "example": "New York is a big city.",
+        "difficulty": "básico",
+        "tags": ["lugares", "geografía"],
+        "pronunciation": "ˈsɪti"
+    },
+    {
+        "id": "fc_36",
+        "category": "Vocabulario",
+        "spanish": "País",
+        "english": "Country",
+        "example": "Spain is a beautiful country.",
+        "difficulty": "básico",
+        "tags": ["lugares", "geografía"],
+        "pronunciation": "ˈkʌntri"
+    },
+    {
+        "id": "fc_37",
+        "category": "Vocabulario",
+        "spanish": "Trabajo",
+        "english": "Work / Job",
+        "example": "I have a new job.",
+        "difficulty": "básico",
+        "tags": ["profesión", "empleo"],
+        "pronunciation": "wɜːk / dʒɒb"
+    },
+    {
+        "id": "fc_38",
+        "category": "Vocabulario",
+        "spanish": "Tiempo",
+        "english": "Time",
+        "example": "What time is it?",
+        "difficulty": "básico",
+        "tags": ["conceptos", "medición"],
+        "pronunciation": "taɪm"
+    },
+    {
+        "id": "fc_39",
+        "category": "Vocabulario",
+        "spanish": "Comida",
+        "english": "Food",
+        "example": "The food is delicious.",
+        "difficulty": "básico",
+        "tags": ["alimentación", "comida"],
+        "pronunciation": "fuːd"
+    },
+    {
+        "id": "fc_40",
+        "category": "Vocabulario",
+        "spanish": "Agua",
+        "english": "Water",
+        "example": "Drink plenty of water.",
+        "difficulty": "básico",
+        "tags": ["bebidas", "salud"],
+        "pronunciation": "ˈwɔːtə"
+    },
+    {
+        "id": "fc_41",
+        "category": "Verbos",
+        "spanish": "Escribir",
+        "english": "To write",
+        "example": "She writes beautiful poems.",
+        "difficulty": "intermedio",
+        "tags": ["verbos", "escritura"],
+        "pronunciation": "tuː raɪt"
+    },
+    {
+        "id": "fc_42",
+        "category": "Verbos",
+        "spanish": "Leer",
+        "english": "To read",
+        "example": "I read a book every week.",
+        "difficulty": "intermedio",
+        "tags": ["verbos", "lectura"],
+        "pronunciation": "tuː riːd"
+    },
+    {
+        "id": "fc_43",
+        "category": "Adjetivos",
+        "spanish": "Interesante",
+        "english": "Interesting",
+        "example": "This movie is very interesting.",
+        "difficulty": "intermedio",
+        "tags": ["adjetivos", "opinión"],
+        "pronunciation": "ˈɪntrəstɪŋ"
+    },
+    {
+        "id": "fc_44",
+        "category": "Adjetivos",
+        "spanish": "Difícil",
+        "english": "Difficult",
+        "example": "This exercise is difficult.",
+        "difficulty": "intermedio",
+        "tags": ["adjetivos", "dificultad"],
+        "pronunciation": "ˈdɪfɪkəlt"
+    },
+    {
+        "id": "fc_45",
+        "category": "Conectores",
+        "spanish": "Por lo tanto",
+        "english": "Therefore",
+        "example": "I studied hard; therefore, I passed.",
+        "difficulty": "avanzado",
+        "tags": ["conectores", "consecuencia"],
+        "pronunciation": "ˈðeəfɔː"
+    },
+    {
+        "id": "fc_46",
+        "category": "Conectores",
+        "spanish": "Mientras",
+        "english": "While",
+        "example": "I listen to music while I work.",
+        "difficulty": "intermedio",
+        "tags": ["conectores", "tiempo"],
+        "pronunciation": "waɪl"
+    },
+    {
+        "id": "fc_47",
+        "category": "Vocabulario",
+        "spanish": "Aprender",
+        "english": "To learn",
+        "example": "I want to learn English.",
+        "difficulty": "básico",
+        "tags": ["verbos", "educación"],
+        "pronunciation": "tuː lɜːn"
+    },
+    {
+        "id": "fc_48",
+        "category": "Vocabulario",
+        "spanish": "Enseñar",
+        "english": "To teach",
+        "example": "She teaches mathematics.",
+        "difficulty": "intermedio",
+        "tags": ["verbos", "educación"],
+        "pronunciation": "tuː tiːtʃ"
+    },
+    {
+        "id": "fc_49",
+        "category": "Vocabulario",
+        "spanish": "Éxito",
+        "english": "Success",
+        "example": "Hard work leads to success.",
+        "difficulty": "intermedio",
+        "tags": ["sustantivos", "logros"],
+        "pronunciation": "səkˈses"
+    },
+    {
+        "id": "fc_50",
+        "category": "Vocabulario",
+        "spanish": "Meta / Objetivo",
+        "english": "Goal",
+        "example": "My goal is to speak English fluently.",
+        "difficulty": "intermedio",
+        "tags": ["sustantivos", "objetivos"],
+        "pronunciation": "ɡəʊl"
+    }
+]

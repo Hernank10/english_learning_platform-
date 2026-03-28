@@ -1,0 +1,723 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - English Learning Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos del dashboard */
+    .dashboard-card {
+        transition: all 0.3s ease;
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .stats-card::before {
+        content: '✨';
+        position: absolute;
+        font-size: 100px;
+        opacity: 0.1;
+        bottom: -20px;
+        right: -20px;
+        transform: rotate(-15deg);
+    }
+    
+    .stats-card:hover {
+        transform: scale(1.02);
+    }
+    
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        animation: countUp 1s ease-out;
+    }
+    
+    @keyframes countUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .progress-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: conic-gradient(#ffd459 0deg, #e9ecef 0deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        margin: 0 auto;
+    }
+    
+    .progress-circle::before {
+        content: '';
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        background: white;
+        border-radius: 50%;
+    }
+    
+    .progress-text {
+        position: relative;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #2d3748;
+    }
+    
+    .achievement-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+        color: white;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .achievement-badge:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .streak-fire {
+        animation: flame 0.5s ease-in-out infinite alternate;
+    }
+    
+    @keyframes flame {
+        from { text-shadow: 0 0 5px #ff9d59; }
+        to { text-shadow: 0 0 20px #ff595e; }
+    }
+    
+    .activity-timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+    
+    .activity-timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(180deg, #667eea, #764ba2);
+    }
+    
+    .activity-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+    }
+    
+    .activity-item::before {
+        content: '';
+        position: absolute;
+        left: -2rem;
+        top: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #667eea;
+        border: 2px solid white;
+    }
+    
+    /* Gráficos */
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin: 1rem 0;
+    }
+    
+    /* Recomendaciones */
+    .recommendation-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 1rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .recommendation-card:hover {
+        transform: translateX(5px);
+        background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    }
+    
+    /* Medallas */
+    .medal {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .medal.locked {
+        background: #6c757d;
+        opacity: 0.5;
+        filter: grayscale(0.5);
+    }
+    
+    .medal:hover {
+        transform: scale(1.1) rotate(5deg);
+    }
+    
+    /* Niveles */
+    .level-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .stats-number {
+            font-size: 1.8rem;
+        }
+        
+        .progress-circle {
+            width: 100px;
+            height: 100px;
+        }
+        
+        .progress-circle::before {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .progress-text {
+            font-size: 1.2rem;
+        }
+        
+        .medal {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+    }
+    
+    /* Animación de bienvenida */
+    .welcome-animation {
+        animation: slideInDown 0.5s ease-out;
+    }
+    
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Mensaje de bienvenida personalizado -->
+    <div class="welcome-animation mb-4">
+        <h1 class="display-5 fw-bold">
+            <i class="bi bi-emoji-smile-fill text-warning me-2"></i>
+            ¡Hola, {{ current_user.username }}! 👋
+        </h1>
+        <p class="lead text-muted">
+            {% if current_user.streak == 0 %}
+                ¡Comienza tu primera racha de aprendizaje hoy! 🔥
+            {% elif current_user.streak < 7 %}
+                Llevas <strong class="text-primary">{{ current_user.streak }}</strong> días de racha. ¡Sigue así! 🌟
+            {% elif current_user.streak < 30 %}
+                ¡Increíble! <strong class="text-success">{{ current_user.streak }}</strong> días de racha. ¡Eres un campeón! 🏆
+            {% else %}
+                ¡LEYENDA! Más de <strong class="text-warning">{{ current_user.streak }}</strong> días practicando. ¡Eres una inspiración! 🔥✨
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="row">
+        <!-- Columna izquierda - Estadísticas principales -->
+        <div class="col-lg-8">
+            <!-- Tarjetas de estadísticas -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3 col-sm-6">
+                    <div class="stats-card text-center">
+                        <i class="bi bi-journal-bookmark-fill fs-1 mb-2"></i>
+                        <div class="stats-number" id="total-exercises">{{ total_exercises }}</div>
+                        <small>Ejercicios totales</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="stats-card text-center" style="background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);">
+                        <i class="bi bi-check-circle-fill fs-1 mb-2"></i>
+                        <div class="stats-number" id="completed-exercises">{{ completed_exercises }}</div>
+                        <small>Ejercicios completados</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="stats-card text-center" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); color: #2d3748;">
+                        <i class="bi bi-star-fill fs-1 mb-2"></i>
+                        <div class="stats-number" id="total-score">{{ total_score }}</div>
+                        <small>Puntos totales</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="stats-card text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="bi bi-fire streak-fire fs-1 mb-2"></i>
+                        <div class="stats-number" id="current-streak">{{ current_user.streak }}</div>
+                        <small>Racha actual 🔥</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progreso de nivel -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 text-center">
+                            <div class="level-badge mb-2">
+                                {{ current_user.level }}
+                            </div>
+                            <h6 class="mb-0">Nivel {{ current_user.level }}</h6>
+                            <small class="text-muted">Próximo nivel: {{ current_user.level + 1 }}</small>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Progreso al siguiente nivel</span>
+                                <span class="fw-bold">{{ "%.1f"|format(level_progress) }}%</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar progress-bar-animated" 
+                                     style="width: {{ level_progress }}%"></div>
+                            </div>
+                            <div class="mt-3 text-muted small">
+                                <i class="bi bi-info-circle"></i>
+                                Necesitas {{ 100 - level_progress }} puntos más para subir de nivel
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico de progreso semanal -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2 text-primary"></i>
+                        Progreso Semanal
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="weeklyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actividad reciente -->
+            <div class="card dashboard-card">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history me-2 text-primary"></i>
+                        Actividad Reciente
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_activities %}
+                        <div class="activity-timeline">
+                            {% for activity in recent_activities %}
+                                <div class="activity-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <i class="bi bi-{{ activity.icon }} me-2 text-primary"></i>
+                                            <strong>{{ activity.title }}</strong>
+                                            <p class="text-muted small mb-0">{{ activity.description }}</p>
+                                        </div>
+                                        <small class="text-muted">{{ activity.time }}</small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-emoji-neutral-fill fs-1 text-muted"></i>
+                            <p class="text-muted mt-2">Aún no hay actividad. ¡Comienza a practicar!</p>
+                            <a href="{{ url_for('practice', module='basic-questions') }}" class="btn btn-rainbow btn-sm">
+                                Primer Ejercicio
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna derecha - Logros y recomendaciones -->
+        <div class="col-lg-4">
+            <!-- Estrellas y medallas -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="bi bi-award me-2 text-warning"></i>
+                        Tus Logros
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <div class="display-4 text-warning">
+                            {% for i in range(current_user.stars // 10) %}🌟{% endfor %}
+                            {% if current_user.stars % 10 >= 5 %}⭐{% endif %}
+                        </div>
+                        <h3 class="mb-0">{{ current_user.stars }} <small class="fs-6 text-muted">estrellas</small></h3>
+                        <small class="text-muted">¡Sigue así para conseguir más!</small>
+                    </div>
+                    <hr>
+                    <h6 class="mb-3">Medallas obtenidas</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% if medals %}
+                            {% for medal in medals %}
+                                <div class="medal" data-bs-toggle="tooltip" title="{{ medal.name }}">
+                                    {{ medal.emoji }}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted small">Completa exámenes para obtener medallas</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logros recientes -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="bi bi-trophy me-2 text-success"></i>
+                        Logros Desbloqueados
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_achievements %}
+                        {% for ach in recent_achievements %}
+                            <div class="achievement-badge mb-2 w-100">
+                                <i class="bi bi-{{ ach.icon }}"></i>
+                                {{ ach.name }}
+                                <small class="ms-auto">{{ ach.date }}</small>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="bi bi-emoji-smile fs-1 text-muted"></i>
+                            <p class="text-muted mt-2">Completa ejercicios para desbloquear logros</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Estadísticas de precisión -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pie-chart me-2 text-info"></i>
+                        Estadísticas de Precisión
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <div class="progress-circle" id="accuracy-circle">
+                            <div class="progress-text">{{ "%.0f"|format(accuracy) }}%</div>
+                        </div>
+                        <p class="mt-3 mb-0">Precisión general</p>
+                    </div>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Preguntas básicas</span>
+                            <span class="fw-bold">{{ basic_accuracy }}%</span>
+                        </div>
+                        <div class="progress mb-2" style="height: 5px;">
+                            <div class="progress-bar bg-success" style="width: {{ basic_accuracy }}%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Oraciones simples</span>
+                            <span class="fw-bold">{{ simple_accuracy }}%</span>
+                        </div>
+                        <div class="progress mb-2" style="height: 5px;">
+                            <div class="progress-bar bg-info" style="width: {{ simple_accuracy }}%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Oraciones compuestas</span>
+                            <span class="fw-bold">{{ compound_accuracy }}%</span>
+                        </div>
+                        <div class="progress mb-2" style="height: 5px;">
+                            <div class="progress-bar bg-warning" style="width: {{ compound_accuracy }}%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Conectores</span>
+                            <span class="fw-bold">{{ connectors_accuracy }}%</span>
+                        </div>
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar bg-danger" style="width: {{ connectors_accuracy }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recomendaciones personalizadas -->
+            <div class="card dashboard-card">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightbulb me-2 text-warning"></i>
+                        Recomendaciones para ti
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recommendations %}
+                        {% for rec in recommendations %}
+                            <div class="recommendation-card mb-2" onclick="location.href='{{ rec.link }}'">
+                                <div class="d-flex align-items-center gap-3">
+                                    <i class="bi bi-{{ rec.icon }} fs-2 text-primary"></i>
+                                    <div>
+                                        <strong>{{ rec.title }}</strong>
+                                        <p class="text-muted small mb-0">{{ rec.description }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="bi bi-check-circle-fill fs-1 text-success"></i>
+                            <p class="text-muted mt-2">¡Vas excelente! Sigue practicando</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Módulos destacados -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card dashboard-card">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="bi bi-stars me-2 text-primary"></i>
+                        Continúa tu aprendizaje
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-3 col-sm-6">
+                            <div class="text-center p-3 border rounded-3 h-100">
+                                <i class="bi bi-question-circle-fill fs-1 text-primary"></i>
+                                <h6 class="mt-2">Preguntas Básicas</h6>
+                                <div class="progress mb-2" style="height: 3px;">
+                                    <div class="progress-bar" style="width: {{ modules_progress.basic_questions }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ modules_progress.basic_questions }}% completado</small>
+                                <div class="mt-2">
+                                    <a href="{{ url_for('practice', module='basic-questions') }}" class="btn btn-sm btn-outline-primary">
+                                        Continuar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="text-center p-3 border rounded-3 h-100">
+                                <i class="bi bi-file-text-fill fs-1 text-success"></i>
+                                <h6 class="mt-2">Oraciones Simples</h6>
+                                <div class="progress mb-2" style="height: 3px;">
+                                    <div class="progress-bar bg-success" style="width: {{ modules_progress.simple_sentences }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ modules_progress.simple_sentences }}% completado</small>
+                                <div class="mt-2">
+                                    <a href="{{ url_for('practice', module='simple-sentences') }}" class="btn btn-sm btn-outline-success">
+                                        Continuar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="text-center p-3 border rounded-3 h-100">
+                                <i class="bi bi-link-45deg fs-1 text-warning"></i>
+                                <h6 class="mt-2">Oraciones Compuestas</h6>
+                                <div class="progress mb-2" style="height: 3px;">
+                                    <div class="progress-bar bg-warning" style="width: {{ modules_progress.compound_sentences }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ modules_progress.compound_sentences }}% completado</small>
+                                <div class="mt-2">
+                                    <a href="{{ url_for('practice', module='compound-sentences') }}" class="btn btn-sm btn-outline-warning">
+                                        Continuar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="text-center p-3 border rounded-3 h-100">
+                                <i class="bi bi-diagram-3-fill fs-1 text-danger"></i>
+                                <h6 class="mt-2">Conectores</h6>
+                                <div class="progress mb-2" style="height: 3px;">
+                                    <div class="progress-bar bg-danger" style="width: {{ modules_progress.connectors }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ modules_progress.connectors }}% completado</small>
+                                <div class="mt-2">
+                                    <a href="{{ url_for('practice', module='connectors') }}" class="btn btn-sm btn-outline-danger">
+                                        Continuar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    // Datos del gráfico semanal
+    const weeklyData = {{ weekly_progress | tojson }};
+    
+    // Inicializar gráfico semanal
+    const ctx = document.getElementById('weeklyChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: weeklyData.map(d => d.day),
+            datasets: [{
+                label: 'Puntos obtenidos',
+                data: weeklyData.map(d => d.score),
+                borderColor: 'rgb(102, 126, 234)',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: 'rgb(102, 126, 234)',
+                pointBorderColor: 'white',
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleColor: 'white',
+                    bodyColor: 'white',
+                    borderColor: '#667eea',
+                    borderWidth: 2
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+    
+    // Animación del círculo de progreso
+    const accuracy = {{ accuracy }};
+    const circle = document.getElementById('accuracy-circle');
+    if (circle) {
+        const degrees = (accuracy / 100) * 360;
+        circle.style.background = `conic-gradient(#ffd459 ${degrees}deg, #e9ecef ${degrees}deg)`;
+    }
+    
+    // Animación de contadores al cargar
+    function animateNumber(element, target, duration = 1000) {
+        let start = 0;
+        const increment = target / (duration / 16);
+        const interval = setInterval(() => {
+            start += increment;
+            if (start >= target) {
+                element.textContent = Math.floor(target);
+                clearInterval(interval);
+            } else {
+                element.textContent = Math.floor(start);
+            }
+        }, 16);
+    }
+    
+    // Animar números de estadísticas
+    const statsNumbers = document.querySelectorAll('.stats-number');
+    statsNumbers.forEach(el => {
+        const target = parseInt(el.textContent);
+        if (target > 0) {
+            el.textContent = '0';
+            animateNumber(el, target, 1500);
+        }
+    });
+    
+    // Tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Actualizar estadísticas en tiempo real (simulación)
+    function updateRealTimeStats() {
+        // Aquí se pueden agregar actualizaciones vía WebSocket o AJAX
+        console.log('Actualizando estadísticas en tiempo real...');
+    }
+    
+    // Actualizar cada 30 segundos
+    setInterval(updateRealTimeStats, 30000);
+</script>
+{% endblock %}

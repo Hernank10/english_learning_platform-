@@ -1,0 +1,600 @@
+{% extends "base.html" %}
+
+{% block title %}Registrarse - English Learning Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos de registro */
+    .register-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 30px 30px;
+    }
+    
+    .register-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        max-width: 500px;
+        margin: 0 auto;
+        animation: slideIn 0.5s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control {
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+    
+    .form-control.is-valid {
+        border-color: #28a745;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 0.875rem 0.875rem;
+        padding-right: 2rem;
+    }
+    
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 0.875rem 0.875rem;
+        padding-right: 2rem;
+    }
+    
+    .password-strength {
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .strength-bar {
+        height: 4px;
+        border-radius: 2px;
+        margin-top: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .strength-weak {
+        width: 25%;
+        background: #dc3545;
+    }
+    
+    .strength-medium {
+        width: 50%;
+        background: #ffc107;
+    }
+    
+    .strength-strong {
+        width: 75%;
+        background: #28a745;
+    }
+    
+    .strength-very-strong {
+        width: 100%;
+        background: #20c997;
+    }
+    
+    .btn-register {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 0.75rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .benefits-list {
+        list-style: none;
+        padding: 0;
+        margin-top: 1.5rem;
+    }
+    
+    .benefits-list li {
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .benefits-list i {
+        color: #28a745;
+        font-size: 1.2rem;
+    }
+    
+    .social-login {
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+    
+    .social-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    .social-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .social-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    /* Términos y condiciones */
+    .terms-checkbox {
+        margin: 1.5rem 0;
+    }
+    
+    .terms-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .terms-text a {
+        color: #667eea;
+        text-decoration: none;
+    }
+    
+    .terms-text a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Modo oscuro */
+    @media (prefers-color-scheme: dark) {
+        .register-card {
+            background: #2d3748;
+            color: #f7fafc;
+        }
+        
+        .form-label {
+            color: #e2e8f0;
+        }
+        
+        .form-control {
+            background: #1a202c;
+            border-color: #4a5568;
+            color: #f7fafc;
+        }
+        
+        .social-btn {
+            background: #1a202c;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        
+        .terms-text {
+            color: #a0aec0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-header">
+    <div class="container text-center">
+        <h1 class="display-5 fw-bold mb-2">
+            <i class="bi bi-person-plus-fill me-2"></i>
+            Crear Cuenta Gratis
+        </h1>
+        <p class="lead mb-0">Únete a miles de estudiantes hispanohablantes</p>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-6 mx-auto">
+            <div class="register-card">
+                <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-person me-1"></i>Nombre de usuario
+                        </label>
+                        <input type="text" class="form-control" id="username" name="username" 
+                               placeholder="Ej: juan_perez" required>
+                        <div class="invalid-feedback" id="usernameFeedback"></div>
+                        <small class="text-muted">Mínimo 3 caracteres, solo letras y números</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-envelope me-1"></i>Correo electrónico
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               placeholder="tu@email.com" required>
+                        <div class="invalid-feedback" id="emailFeedback"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-lock me-1"></i>Contraseña
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               placeholder="••••••••" required>
+                        <div class="password-strength">
+                            <div class="strength-bar" id="strengthBar"></div>
+                            <small id="strengthText" class="text-muted"></small>
+                        </div>
+                        <div class="invalid-feedback" id="passwordFeedback"></div>
+                        <small class="text-muted">Mínimo 6 caracteres</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-check-circle me-1"></i>Confirmar contraseña
+                        </label>
+                        <input type="password" class="form-control" id="confirmPassword" 
+                               placeholder="••••••••" required>
+                        <div class="invalid-feedback" id="confirmFeedback"></div>
+                    </div>
+                    
+                    <div class="terms-checkbox">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="termsCheckbox" required>
+                            <label class="form-check-label terms-text" for="termsCheckbox">
+                                He leído y acepto los 
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">
+                                    Términos y Condiciones
+                                </a>
+                                y la 
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">
+                                    Política de Privacidad
+                                </a>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-register" id="submitBtn">
+                        <i class="bi bi-person-plus me-2"></i>Crear Cuenta Gratis
+                    </button>
+                </form>
+                
+                <div class="social-login">
+                    <p class="text-muted">O regístrate con</p>
+                    <div class="social-buttons">
+                        <div class="social-btn" onclick="socialLogin('google')">
+                            <i class="bi bi-google fs-4"></i>
+                        </div>
+                        <div class="social-btn" onclick="socialLogin('facebook')">
+                            <i class="bi bi-facebook fs-4"></i>
+                        </div>
+                        <div class="social-btn" onclick="socialLogin('github')">
+                            <i class="bi bi-github fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="text-center">
+                    <p class="mb-0">
+                        ¿Ya tienes cuenta? 
+                        <a href="{{ url_for('login') }}" class="text-decoration-none fw-bold">
+                            Inicia sesión aquí
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-5 d-none d-lg-block">
+            <div class="ps-4">
+                <h3 class="mb-4">
+                    <i class="bi bi-stars text-primary"></i>
+                    ¿Por qué unirte?
+                </h3>
+                <ul class="benefits-list">
+                    <li>
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span><strong>100+ ejercicios</strong> de inglés gratuitos</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span><strong>Flashcards interactivas</strong> para memorizar vocabulario</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span><strong>Sistema de logros y medallas</strong> para motivarte</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span><strong>Exámenes por niveles</strong> para evaluar tu progreso</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span><strong>Ranking de estudiantes</strong> para competir sanamente</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span><strong>Seguimiento de progreso</strong> en tiempo real</span>
+                    </li>
+                </ul>
+                
+                <div class="mt-4 p-3 bg-light rounded-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-chat-quote-fill fs-1 text-primary"></i>
+                        <div>
+                            <p class="mb-1 fst-italic">"Esta plataforma cambió mi forma de aprender inglés. ¡Los ejercicios son muy efectivos!"</p>
+                            <small class="text-muted">— María González, estudiante</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Términos y Condiciones -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Términos y Condiciones</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>1. Aceptación de los Términos</h6>
+                <p>Al registrarte en English Learning Hub, aceptas estos términos y condiciones en su totalidad.</p>
+                
+                <h6>2. Uso de la Plataforma</h6>
+                <p>La plataforma está diseñada para el aprendizaje del inglés. No está permitido el uso indebido de los contenidos.</p>
+                
+                <h6>3. Privacidad</h6>
+                <p>Tus datos personales serán tratados de acuerdo con nuestra Política de Privacidad.</p>
+                
+                <h6>4. Responsabilidad del Usuario</h6>
+                <p>Eres responsable de mantener la confidencialidad de tu cuenta y contraseña.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Política de Privacidad -->
+<div class="modal fade" id="privacyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Política de Privacidad</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>1. Datos que recopilamos</h6>
+                <p>Recopilamos información de registro, progreso de aprendizaje y estadísticas de uso.</p>
+                
+                <h6>2. Uso de la información</h6>
+                <p>Utilizamos tus datos para personalizar tu experiencia de aprendizaje y mejorar la plataforma.</p>
+                
+                <h6>3. Protección de datos</h6>
+                <p>Implementamos medidas de seguridad para proteger tu información personal.</p>
+                
+                <h6>4. Tus derechos</h6>
+                <p>Puedes acceder, modificar o eliminar tus datos personales en cualquier momento.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validación en tiempo real
+const usernameInput = document.getElementById('username');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const confirmInput = document.getElementById('confirmPassword');
+const termsCheckbox = document.getElementById('termsCheckbox');
+const submitBtn = document.getElementById('submitBtn');
+
+// Validar username
+usernameInput.addEventListener('input', function() {
+    const value = this.value;
+    const isValid = /^[a-zA-Z0-9]{3,}$/.test(value);
+    
+    if (value.length === 0) {
+        this.classList.remove('is-valid', 'is-invalid');
+        document.getElementById('usernameFeedback').textContent = '';
+    } else if (isValid) {
+        this.classList.add('is-valid');
+        this.classList.remove('is-invalid');
+        document.getElementById('usernameFeedback').textContent = '';
+    } else {
+        this.classList.add('is-invalid');
+        this.classList.remove('is-valid');
+        document.getElementById('usernameFeedback').textContent = 'Mínimo 3 caracteres, solo letras y números';
+    }
+    validateForm();
+});
+
+// Validar email
+emailInput.addEventListener('input', function() {
+    const value = this.value;
+    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    
+    if (value.length === 0) {
+        this.classList.remove('is-valid', 'is-invalid');
+        document.getElementById('emailFeedback').textContent = '';
+    } else if (isValid) {
+        this.classList.add('is-valid');
+        this.classList.remove('is-invalid');
+        document.getElementById('emailFeedback').textContent = '';
+    } else {
+        this.classList.add('is-invalid');
+       this.classList.remove('is-valid');
+        document.getElementById('emailFeedback').textContent = 'Ingresa un correo válido';
+    }
+    validateForm();
+});
+
+// Validar contraseña con medidor de fuerza
+passwordInput.addEventListener('input', function() {
+    const value = this.value;
+    const strength = checkPasswordStrength(value);
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthText = document.getElementById('strengthText');
+    
+    if (value.length === 0) {
+        strengthBar.className = 'strength-bar';
+        strengthText.textContent = '';
+        this.classList.remove('is-valid', 'is-invalid');
+    } else if (value.length >= 6) {
+        this.classList.add('is-valid');
+        this.classList.remove('is-invalid');
+        
+        // Mostrar fuerza de contraseña
+        if (strength === 'weak') {
+            strengthBar.className = 'strength-bar strength-weak';
+            strengthText.innerHTML = '🔴 Contraseña débil';
+        } else if (strength === 'medium') {
+            strengthBar.className = 'strength-bar strength-medium';
+            strengthText.innerHTML = '🟡 Contraseña media';
+        } else if (strength === 'strong') {
+            strengthBar.className = 'strength-bar strength-strong';
+            strengthText.innerHTML = '🟢 Contraseña fuerte';
+        } else if (strength === 'very-strong') {
+            strengthBar.className = 'strength-bar strength-very-strong';
+            strengthText.innerHTML = '💪 Contraseña muy fuerte';
+        }
+    } else {
+        this.classList.add('is-invalid');
+        this.classList.remove('is-valid');
+        strengthBar.className = 'strength-bar';
+        strengthText.textContent = '';
+        document.getElementById('passwordFeedback').textContent = 'Mínimo 6 caracteres';
+    }
+    validateForm();
+});
+
+// Medir fuerza de contraseña
+function checkPasswordStrength(password) {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (password.match(/[a-z]/)) score++;
+    if (password.match(/[A-Z]/)) score++;
+    if (password.match(/[0-9]/)) score++;
+    if (password.match(/[^a-zA-Z0-9]/)) score++;
+    
+    if (score <= 2) return 'weak';
+    if (score === 3) return 'medium';
+    if (score === 4) return 'strong';
+    return 'very-strong';
+}
+
+// Validar confirmación de contraseña
+confirmInput.addEventListener('input', function() {
+    const password = passwordInput.value;
+    const value = this.value;
+    
+    if (value.length === 0) {
+        this.classList.remove('is-valid', 'is-invalid');
+        document.getElementById('confirmFeedback').textContent = '';
+    } else if (value === password) {
+        this.classList.add('is-valid');
+        this.classList.remove('is-invalid');
+        document.getElementById('confirmFeedback').textContent = '';
+    } else {
+        this.classList.add('is-invalid');
+        this.classList.remove('is-valid');
+        document.getElementById('confirmFeedback').textContent = 'Las contraseñas no coinciden';
+    }
+    validateForm();
+});
+
+// Validar términos
+termsCheckbox.addEventListener('change', validateForm);
+
+// Validar formulario completo
+function validateForm() {
+    const isUsernameValid = usernameInput.classList.contains('is-valid');
+    const isEmailValid = emailInput.classList.contains('is-valid');
+    const isPasswordValid = passwordInput.classList.contains('is-valid') && passwordInput.value.length >= 6;
+    const isConfirmValid = confirmInput.classList.contains('is-valid');
+    const isTermsChecked = termsCheckbox.checked;
+    
+    if (isUsernameValid && isEmailValid && isPasswordValid && isConfirmValid && isTermsChecked) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+    } else {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.6';
+        submitBtn.style.cursor = 'not-allowed';
+    }
+}
+
+// Prevenir envío si el formulario no es válido
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    if (submitBtn.disabled) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'warning',
+            title: 'Completa el formulario',
+            text: 'Por favor completa todos los campos correctamente',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+        });
+    }
+});
+
+// Social login (simulado)
+function socialLogin(provider) {
+    Swal.fire({
+        icon: 'info',
+        title: 'Próximamente',
+        text: `Inicio de sesión con ${provider} estará disponible pronto`,
+        confirmButtonText: 'Entendido'
+    });
+}
+</script>
+{% endblock %}

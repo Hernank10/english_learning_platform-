@@ -1,0 +1,942 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Gestión de Usuarios | English Learning Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos de gestión de usuarios */
+    .users-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 30px 30px;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-box {
+        background: white;
+        border-radius: 15px;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    
+    /* Filtros y búsqueda */
+    .filter-bar {
+        background: white;
+        border-radius: 15px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    /* Tabla de usuarios */
+    .users-table-container {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .users-table {
+        width: 100%;
+        margin-bottom: 0;
+    }
+    
+    .users-table th {
+        background: #f8f9fa;
+        padding: 1rem;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .users-table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .users-table tr:hover {
+        background: #f8f9fa;
+    }
+    
+    /* Avatar de usuario */
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    
+    /* Badges de rol */
+    .role-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .role-admin {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .role-user {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .role-moderator {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    /* Indicadores de estado */
+    .status-badge {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+    }
+    
+    .status-active {
+        background: #28a745;
+        box-shadow: 0 0 5px #28a745;
+    }
+    
+    .status-inactive {
+        background: #dc3545;
+    }
+    
+    /* Acciones masivas */
+    .bulk-actions {
+        background: #e9ecef;
+        padding: 0.75rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        display: none;
+    }
+    
+    /* Modal de usuario */
+    .modal-user {
+        max-width: 700px;
+    }
+    
+    .user-stats-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Gráficos */
+    .chart-container {
+        position: relative;
+        height: 200px;
+        margin-top: 1rem;
+    }
+    
+    /* Paginación */
+    .pagination {
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+    
+    .page-link {
+        color: #667eea;
+        border-radius: 8px;
+        margin: 0 2px;
+    }
+    
+    .page-item.active .page-link {
+        background: #667eea;
+        border-color: #667eea;
+    }
+    
+    /* Animaciones */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .user-row {
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    /* Modo oscuro */
+    @media (prefers-color-scheme: dark) {
+        .stat-box, .filter-bar, .users-table-container {
+            background: #2d3748;
+            color: #f7fafc;
+        }
+        
+        .users-table th {
+            background: #1a202c;
+            color: #f7fafc;
+            border-color: #4a5568;
+        }
+        
+        .users-table tr:hover {
+            background: #1a202c;
+        }
+        
+        .bulk-actions {
+            background: #1a202c;
+        }
+        
+        .user-stats-card {
+            background: #1a202c;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="users-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="bi bi-people-fill me-2"></i>
+                    Gestión de Usuarios
+                </h1>
+                <p class="lead mb-0">Administra todos los usuarios de la plataforma</p>
+            </div>
+            <div>
+                <button class="btn btn-light btn-lg" onclick="exportUsersData()">
+                    <i class="bi bi-download me-2"></i>Exportar Datos
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <!-- Estadísticas rápidas -->
+    <div class="stats-grid">
+        <div class="stat-box">
+            <i class="bi bi-people-fill fs-2 text-primary"></i>
+            <div class="stat-number" id="total-users">{{ users|length }}</div>
+            <small>Total usuarios</small>
+        </div>
+        <div class="stat-box">
+            <i class="bi bi-shield-lock-fill fs-2 text-danger"></i>
+            <div class="stat-number" id="total-admins">{{ admins_count }}</div>
+            <small>Administradores</small>
+        </div>
+        <div class="stat-box">
+            <i class="bi bi-calendar-week fs-2 text-success"></i>
+            <div class="stat-number" id="active-this-week">{{ active_this_week }}</div>
+            <small>Activos esta semana</small>
+        </div>
+        <div class="stat-box">
+            <i class="bi bi-graph-up fs-2 text-info"></i>
+            <div class="stat-number" id="avg-score">{{ avg_score }}</div>
+            <small>Puntos promedio</small>
+        </div>
+    </div>
+
+    <!-- Barra de filtros y búsqueda -->
+    <div class="filter-bar">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="searchInput" 
+                           placeholder="Buscar por nombre, email o ID...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="roleFilter">
+                    <option value="">Todos los roles</option>
+                    <option value="admin">👑 Administrador</option>
+                    <option value="moderator">🛡️ Moderador</option>
+                    <option value="user">👤 Usuario</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="levelFilter">
+                    <option value="">Todos los niveles</option>
+                    <option value="1-5">Nivel 1-5</option>
+                    <option value="6-10">Nivel 6-10</option>
+                    <option value="11-15">Nivel 11-15</option>
+                    <option value="16+">Nivel 16+</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="statusFilter">
+                    <option value="">Todos los estados</option>
+                    <option value="active">🟢 Activo</option>
+                    <option value="inactive">🔴 Inactivo</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-primary w-100" onclick="resetFilters()">
+                    <i class="bi bi-arrow-repeat"></i> Reset
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones masivas -->
+    <div id="bulkActions" class="bulk-actions">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <i class="bi bi-check2-square me-2"></i>
+                <span id="selectedCount">0</span> usuarios seleccionados
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-sm btn-danger" onclick="bulkDelete()">
+                    <i class="bi bi-trash"></i> Eliminar
+                </button>
+                <button class="btn btn-sm btn-success" onclick="bulkActivate()">
+                    <i class="bi bi-check-circle"></i> Activar
+                </button>
+                <button class="btn btn-sm btn-warning" onclick="bulkDeactivate()">
+                    <i class="bi bi-x-circle"></i> Desactivar
+                </button>
+                <button class="btn btn-sm btn-info" onclick="bulkExport()">
+                    <i class="bi bi-download"></i> Exportar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de usuarios -->
+    <div class="users-table-container">
+        <div class="table-responsive">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th style="width: 5%">
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                        </th>
+                        <th style="width: 10%">ID</th>
+                        <th style="width: 20%">Usuario</th>
+                        <th style="width: 20%">Email</th>
+                        <th style="width: 10%">Rol</th>
+                        <th style="width: 10%">Nivel</th>
+                        <th style="width: 10%">Puntos</th>
+                        <th style="width: 10%">Estrellas</th>
+                        <th style="width: 15%">Última actividad</th>
+                        <th style="width: 15%">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <!-- Usuarios se cargarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Paginación -->
+        <div id="pagination" class="pagination-container"></div>
+    </div>
+</div>
+
+<!-- Modal de detalles de usuario -->
+<div class="modal fade" id="userModal" tabindex="-1">
+    <div class="modal-dialog modal-user">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-person-circle me-2"></i>
+                    Detalles del Usuario
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="userModalContent">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="editUserFromModal()">
+                    <i class="bi bi-pencil"></i> Editar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de edición de usuario -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-pencil-square me-2"></i>
+                    Editar Usuario
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre de usuario</label>
+                        <input type="text" class="form-control" id="editUsername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Rol</label>
+                        <select class="form-select" id="editRole">
+                            <option value="user">👤 Usuario</option>
+                            <option value="moderator">🛡️ Moderador</option>
+                            <option value="admin">👑 Administrador</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nivel</label>
+                        <input type="number" class="form-control" id="editLevel" min="1" max="100">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Puntos</label>
+                        <input type="number" class="form-control" id="editScore" min="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estrellas</label>
+                        <input type="number" class="form-control" id="editStars" min="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" id="editActive">
+                            <label class="form-check-label">Usuario activo</label>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveUserEdit()">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Datos de usuarios (desde el backend)
+let users = {{ users | tojson }};
+let currentPage = 1;
+let itemsPerPage = 10;
+let filteredUsers = [];
+let selectedUsers = new Set();
+
+// Inicializar
+function initialize() {
+    filteredUsers = [...users];
+    renderUsers();
+    updateStats();
+}
+
+// Renderizar tabla de usuarios
+function renderUsers() {
+    const tbody = document.getElementById('usersTableBody');
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const pageUsers = filteredUsers.slice(start, end);
+    
+    if (pageUsers.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="10" class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                    <p class="mt-2">No se encontraron usuarios</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = pageUsers.map(user => `
+        <tr class="user-row">
+            <td>
+                <input type="checkbox" class="user-checkbox" value="${user.id}" 
+                       onchange="toggleUserSelect('${user.id}')">
+            </td>
+            <td><code>#${user.id}</code></td>
+            <td>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="user-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                    <div>
+                        <div class="fw-bold">${escapeHtml(user.username)}</div>
+                        <small class="text-muted">${user.email}</small>
+                    </div>
+                </div>
+            </td>
+            <td>${escapeHtml(user.email)}</td>
+            <td>
+                <span class="role-badge role-${user.role}">
+                    ${user.role === 'admin' ? '👑 Admin' : user.role === 'moderator' ? '🛡️ Mod' : '👤 User'}
+                </span>
+            </td>
+            <td>
+                <span class="badge bg-primary">Nivel ${user.level}</span>
+            </td>
+            <td class="fw-bold text-warning">${user.total_score} pts</td>
+            <td>
+                <span class="text-warning">${'⭐'.repeat(Math.min(user.stars || 0, 5))}</span>
+                ${user.stars > 5 ? `+${user.stars - 5}` : ''}
+            </td>
+            <td>
+                <small>${formatDate(user.last_activity)}</small>
+            </td>
+            <td>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-info" onclick="viewUserDetails('${user.id}')" title="Ver detalles">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="editUser('${user.id}')" title="Editar">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" onclick="deleteUser('${user.id}')" title="Eliminar">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+    
+    updatePagination();
+    updateSelectedCount();
+}
+
+// Formatear fecha
+function formatDate(dateString) {
+    if (!dateString) return 'Nunca';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now - date;
+    
+    if (diff < 60000) return 'Justo ahora';
+    if (diff < 3600000) return `${Math.floor(diff / 60000)} min`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)} h`;
+    if (diff < 604800000) return `${Math.floor(diff / 86400000)} d`;
+    
+    return date.toLocaleDateString();
+}
+
+// Actualizar estadísticas
+function updateStats() {
+    const admins = users.filter(u => u.role === 'admin').length;
+    const activeThisWeek = users.filter(u => {
+        if (!u.last_activity) return false;
+        const lastActive = new Date(u.last_activity);
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return lastActive > weekAgo;
+    }).length;
+    const avgScore = Math.round(users.reduce((sum, u) => sum + u.total_score, 0) / users.length);
+    
+    document.getElementById('total-users').textContent = users.length;
+    document.getElementById('total-admins').textContent = admins;
+    document.getElementById('active-this-week').textContent = activeThisWeek;
+    document.getElementById('avg-score').textContent = avgScore;
+}
+
+// Filtrar usuarios
+function filterUsers() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const roleFilter = document.getElementById('roleFilter').value;
+    const levelFilter = document.getElementById('levelFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+    
+    filteredUsers = users.filter(user => {
+        const matchesSearch = !searchTerm || 
+            user.username.toLowerCase().includes(searchTerm) ||
+            user.email.toLowerCase().includes(searchTerm) ||
+            user.id.toString().includes(searchTerm);
+        
+        const matchesRole = !roleFilter || user.role === roleFilter;
+        
+        let matchesLevel = true;
+        if (levelFilter) {
+            if (levelFilter === '1-5') matchesLevel = user.level >= 1 && user.level <= 5;
+            else if (levelFilter === '6-10') matchesLevel = user.level >= 6 && user.level <= 10;
+            else if (levelFilter === '11-15') matchesLevel = user.level >= 11 && user.level <= 15;
+            else if (levelFilter === '16+') matchesLevel = user.level >= 16;
+        }
+        
+        const matchesStatus = !statusFilter || 
+            (statusFilter === 'active' && user.active !== false) ||
+            (statusFilter === 'inactive' && user.active === false);
+        
+        return matchesSearch && matchesRole && matchesLevel && matchesStatus;
+    });
+    
+    currentPage = 1;
+    renderUsers();
+}
+
+// Actualizar paginación
+function updatePagination() {
+    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+    const pagination = document.getElementById('pagination');
+    
+    if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+    
+    let html = '<ul class="pagination">';
+    
+    html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">«</a>
+    </li>`;
+    
+    for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+        html += `<li class="page-item ${currentPage === i ? 'active' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+        </li>`;
+    }
+    
+    if (totalPages > 5) {
+        html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+        html += `<li class="page-item"><a class="page-link" href="#" onclick="changePage(${totalPages})">${totalPages}</a></li>`;
+    }
+    
+    html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">»</a>
+    </li>`;
+    html += '</ul>';
+    
+    pagination.innerHTML = html;
+}
+
+function changePage(page) {
+    currentPage = page;
+    renderUsers();
+}
+
+// Seleccionar todos los usuarios
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    
+    checkboxes.forEach(cb => {
+        cb.checked = selectAll.checked;
+        const userId = cb.value;
+        if (selectAll.checked) {
+            selectedUsers.add(userId);
+        } else {
+            selectedUsers.delete(userId);
+        }
+    });
+    
+    updateSelectedCount();
+}
+
+// Toggle selección de usuario individual
+function toggleUserSelect(userId) {
+    if (selectedUsers.has(userId)) {
+        selectedUsers.delete(userId);
+    } else {
+        selectedUsers.add(userId);
+    }
+    updateSelectedCount();
+    
+    // Actualizar checkbox "seleccionar todos"
+    const allCheckboxes = document.querySelectorAll('.user-checkbox');
+    const selectAll = document.getElementById('selectAll');
+    selectAll.checked = allCheckboxes.length === selectedUsers.size;
+}
+
+// Actualizar contador de seleccionados
+function updateSelectedCount() {
+    const count = selectedUsers.size;
+    document.getElementById('selectedCount').textContent = count;
+    document.getElementById('bulkActions').style.display = count > 0 ? 'block' : 'none';
+}
+
+// Ver detalles del usuario
+function viewUserDetails(userId) {
+    const user = users.find(u => u.id.toString() === userId);
+    if (!user) return;
+    
+    const content = `
+        <div class="text-center mb-4">
+            <div class="user-avatar" style="width: 80px; height: 80px; font-size: 2rem; margin: 0 auto;">
+                ${user.username.charAt(0).toUpperCase()}
+            </div>
+            <h4 class="mt-3">${escapeHtml(user.username)}</h4>
+            <p class="text-muted">${escapeHtml(user.email)}</p>
+        </div>
+        
+        <div class="user-stats-card">
+            <div class="row text-center">
+                <div class="col-4">
+                    <div class="h3 mb-0">${user.level}</div>
+                    <small>Nivel</small>
+                </div>
+                <div class="col-4">
+                    <div class="h3 mb-0 text-warning">${user.total_score}</div>
+                    <small>Puntos</small>
+                </div>
+                <div class="col-4">
+                    <div class="h3 mb-0 text-warning">${user.stars || 0}</div>
+                    <small>Estrellas</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="user-stats-card">
+            <h6 class="mb-3">📊 Estadísticas</h6>
+            <div class="row">
+                <div class="col-6">
+                    <div class="text-muted small">Ejercicios completados</div>
+                    <div class="fw-bold">${user.total_exercises || 0}</div>
+                </div>
+                <div class="col-6">
+                    <div class="text-muted small">Precisión</div>
+                    <div class="fw-bold">${user.accuracy || 0}%</div>
+                </div>
+                <div class="col-6 mt-2">
+                    <div class="text-muted small">Racha máxima</div>
+                    <div class="fw-bold">${user.max_streak || 0} días</div>
+                </div>
+                <div class="col-6 mt-2">
+                    <div class="text-muted small">Tiempo estudiado</div>
+                    <div class="fw-bold">${user.study_time || 0} min</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="user-stats-card">
+            <h6 class="mb-2">🏆 Logros desbloqueados</h6>
+            ${user.achievements && user.achievements.length > 0 ? 
+                user.achievements.map(a => `<span class="badge bg-warning me-1 mb-1">${a}</span>`).join('') :
+                '<p class="text-muted small mb-0">Aún sin logros</p>'
+            }
+        </div>
+        
+        <div class="user-stats-card">
+            <h6 class="mb-2">📅 Información de cuenta</h6>
+            <div class="small">
+                <div>📝 Registrado: ${formatDate(user.created_at)}</div>
+                <div>🕐 Última actividad: ${formatDate(user.last_activity)}</div>
+                <div>👑 Rol: ${user.role === 'admin' ? 'Administrador' : user.role === 'moderator' ? 'Moderador' : 'Usuario'}</div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('userModalContent').innerHTML = content;
+    window.currentUser = user;
+    new bootstrap.Modal(document.getElementById('userModal')).show();
+}
+
+// Editar usuario
+function editUser(userId) {
+    const user = users.find(u => u.id.toString() === userId);
+    if (!user) return;
+    
+    document.getElementById('editUserId').value = user.id;
+    document.getElementById('editUsername').value = user.username;
+    document.getElementById('editEmail').value = user.email;
+    document.getElementById('editRole').value = user.role;
+    document.getElementById('editLevel').value = user.level;
+    document.getElementById('editScore').value = user.total_score;
+    document.getElementById('editStars').value = user.stars || 0;
+    document.getElementById('editActive').checked = user.active !== false;
+    
+    new bootstrap.Modal(document.getElementById('editUserModal')).show();
+}
+
+function editUserFromModal() {
+    if (window.currentUser) {
+        editUser(window.currentUser.id);
+        bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
+    }
+}
+
+// Guardar edición de usuario
+function saveUserEdit() {
+    const userId = document.getElementById('editUserId').value;
+    const userIndex = users.findIndex(u => u.id.toString() === userId);
+    
+    if (userIndex !== -1) {
+        users[userIndex] = {
+            ...users[userIndex],
+            username: document.getElementById('editUsername').value,
+            email: document.getElementById('editEmail').value,
+            role: document.getElementById('editRole').value,
+            level: parseInt(document.getElementById('editLevel').value),
+            total_score: parseInt(document.getElementById('editScore').value),
+            stars: parseInt(document.getElementById('editStars').value),
+            active: document.getElementById('editActive').checked
+        };
+        
+        filterUsers();
+        updateStats();
+        bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+        showToast('Usuario actualizado correctamente', 'success');
+    }
+}
+
+// Eliminar usuario
+function deleteUser(userId) {
+    Swal.fire({
+        title: '¿Eliminar usuario?',
+        text: 'Esta acción no se puede deshacer. Todos los datos del usuario serán eliminados.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            users = users.filter(u => u.id.toString() !== userId);
+            filterUsers();
+            updateStats();
+            showToast('Usuario eliminado correctamente', 'success');
+        }
+    });
+}
+
+// Acciones masivas
+function bulkDelete() {
+    if (selectedUsers.size === 0) return;
+    
+    Swal.fire({
+        title: `¿Eliminar ${selectedUsers.size} usuarios?`,
+        text: 'Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            users = users.filter(u => !selectedUsers.has(u.id.toString()));
+            selectedUsers.clear();
+            filterUsers();
+            updateStats();
+            showToast(`${selectedUsers.size} usuarios eliminados`, 'success');
+        }
+    });
+}
+
+function bulkActivate() {
+    users = users.map(u => {
+        if (selectedUsers.has(u.id.toString())) {
+            return { ...u, active: true };
+        }
+        return u;
+    });
+    filterUsers();
+    showToast(`${selectedUsers.size} usuarios activados`, 'success');
+}
+
+function bulkDeactivate() {
+    users = users.map(u => {
+        if (selectedUsers.has(u.id.toString())) {
+            return { ...u, active: false };
+        }
+        return u;
+    });
+    filterUsers();
+    showToast(`${selectedUsers.size} usuarios desactivados`, 'success');
+}
+
+function bulkExport() {
+    const selectedUsersData = users.filter(u => selectedUsers.has(u.id.toString()));
+    const dataStr = JSON.stringify(selectedUsersData, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `users_export_${new Date().toISOString().slice(0, 19)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`${selectedUsers.size} usuarios exportados`, 'success');
+}
+
+// Exportar todos los usuarios
+function exportUsersData() {
+    const dataStr = JSON.stringify(users, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `all_users_${new Date().toISOString().slice(0, 19)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Todos los usuarios exportados', 'success');
+}
+
+// Resetear filtros
+function resetFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('roleFilter').value = '';
+    document.getElementById('levelFilter').value = '';
+    document.getElementById('statusFilter').value = '';
+    filterUsers();
+}
+
+// Escuchar cambios en filtros
+document.getElementById('searchInput').addEventListener('input', filterUsers);
+document.getElementById('roleFilter').addEventListener('change', filterUsers);
+document.getElementById('levelFilter').addEventListener('change', filterUsers);
+document.getElementById('statusFilter').addEventListener('change', filterUsers);
+
+// Escapar HTML
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Mostrar toast
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type} border-0 position-fixed bottom-0 end-0 m-3`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    toast.addEventListener('hidden.bs.toast', () => toast.remove());
+}
+
+// Inicializar
+initialize();
+</script>
+{% endblock %}

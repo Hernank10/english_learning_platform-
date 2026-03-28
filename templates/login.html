@@ -1,0 +1,523 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión - English Learning Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos de login */
+    .login-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 30px 30px;
+    }
+    
+    .login-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        max-width: 450px;
+        margin: 0 auto;
+        animation: slideIn 0.5s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control {
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 0.75rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Opciones de recuperación */
+    .forgot-password {
+        text-align: right;
+        margin-top: -0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .forgot-password a {
+        color: #667eea;
+        text-decoration: none;
+        font-size: 0.85rem;
+    }
+    
+    .forgot-password a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Botones sociales */
+    .social-login {
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+    
+    .social-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    .social-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .social-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    /* Demo credentials */
+    .demo-credentials {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+    
+    .demo-credentials p {
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .demo-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: #e9ecef;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        margin: 0 0.25rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .demo-badge:hover {
+        background: #667eea;
+        color: white;
+    }
+    
+    /* Características destacadas */
+    .features-list {
+        list-style: none;
+        padding: 0;
+        margin-top: 1.5rem;
+    }
+    
+    .features-list li {
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .features-list i {
+        color: #28a745;
+        font-size: 1.2rem;
+    }
+    
+    /* Modo oscuro */
+    @media (prefers-color-scheme: dark) {
+        .login-card {
+            background: #2d3748;
+            color: #f7fafc;
+        }
+        
+        .form-label {
+            color: #e2e8f0;
+        }
+        
+        .form-control {
+            background: #1a202c;
+            border-color: #4a5568;
+            color: #f7fafc;
+        }
+        
+        .social-btn {
+            background: #1a202c;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        
+        .demo-credentials {
+            background: #1a202c;
+        }
+        
+        .demo-badge {
+            background: #2d3748;
+            color: #e2e8f0;
+        }
+        
+        .demo-badge:hover {
+            background: #667eea;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-header">
+    <div class="container text-center">
+        <h1 class="display-5 fw-bold mb-2">
+            <i class="bi bi-box-arrow-in-right me-2"></i>
+            Bienvenido de Vuelta
+        </h1>
+        <p class="lead mb-0">Ingresa a tu cuenta para continuar aprendiendo</p>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-5 mx-auto">
+            <div class="login-card">
+                <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-person me-1"></i>Usuario o Email
+                        </label>
+                        <input type="text" class="form-control" id="username" name="username" 
+                               placeholder="usuario@ejemplo.com" required>
+                        <div class="invalid-feedback" id="usernameFeedback"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-lock me-1"></i>Contraseña
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               placeholder="••••••••" required>
+                        <div class="invalid-feedback" id="passwordFeedback"></div>
+                    </div>
+                    
+                    <div class="forgot-password">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#forgotModal">
+                            <i class="bi bi-question-circle"></i> ¿Olvidaste tu contraseña?
+                        </a>
+                    </div>
+                    
+                    <button type="submit" class="btn-login" id="submitBtn">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+                    </button>
+                </form>
+                
+                <div class="demo-credentials">
+                    <p><i class="bi bi-info-circle"></i> ¿Quieres probar la plataforma?</p>
+                    <div>
+                        <span class="demo-badge" onclick="fillDemoCredentials('admin', 'admin123')">
+                            👑 Admin: admin / admin123
+                        </span>
+                        <span class="demo-badge" onclick="fillDemoCredentials('usuario', 'usuario123')">
+                            👤 Usuario: usuario / usuario123
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="social-login">
+                    <p class="text-muted">O continúa con</p>
+                    <div class="social-buttons">
+                        <div class="social-btn" onclick="socialLogin('google')">
+                            <i class="bi bi-google fs-4"></i>
+                        </div>
+                        <div class="social-btn" onclick="socialLogin('facebook')">
+                            <i class="bi bi-facebook fs-4"></i>
+                        </div>
+                        <div class="social-btn" onclick="socialLogin('github')">
+                            <i class="bi bi-github fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="text-center">
+                    <p class="mb-0">
+                        ¿No tienes cuenta? 
+                        <a href="{{ url_for('register') }}" class="text-decoration-none fw-bold">
+                            Regístrate gratis
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 d-none d-lg-block">
+            <div class="ps-4">
+                <h3 class="mb-4">
+                    <i class="bi bi-stars text-primary"></i>
+                    Ventajas de tener una cuenta
+                </h3>
+                <ul class="features-list">
+                    <li>
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span><strong>Seguimiento personalizado</strong> de tu progreso</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span><strong>Guardar tu avance</strong> en todos los ejercicios</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span><strong>Ganar medallas y logros</strong> por tu dedicación</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span><strong>Competir en el ranking</strong> con otros estudiantes</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span><strong>Acceso a exámenes</strong> por niveles</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span><strong>Flashcards personalizadas</strong> para repasar</span>
+                    </li>
+                </ul>
+                
+                <div class="mt-4 p-3 bg-light rounded-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-graph-up fs-1 text-primary"></i>
+                        <div>
+                            <p class="mb-1 fw-bold">+5,000 estudiantes activos</p>
+                            <p class="mb-0 small text-muted">Únete a nuestra comunidad de aprendizaje</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de recuperación de contraseña -->
+<div class="modal fade" id="forgotModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-envelope me-2"></i>Recuperar Contraseña
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.</p>
+                <form id="forgotForm">
+                    <div class="mb-3">
+                        <label class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" id="resetEmail" placeholder="tu@email.com" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-send me-2"></i>Enviar instrucciones
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validación en tiempo real
+const usernameInput = document.getElementById('username');
+const passwordInput = document.getElementById('password');
+const submitBtn = document.getElementById('submitBtn');
+
+// Validar campos
+function validateForm() {
+    const isUsernameValid = usernameInput.value.trim().length > 0;
+    const isPasswordValid = passwordInput.value.length > 0;
+    
+    if (isUsernameValid && isPasswordValid) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+    } else {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.6';
+        submitBtn.style.cursor = 'not-allowed';
+    }
+}
+
+// Validar username
+usernameInput.addEventListener('input', function() {
+    const value = this.value.trim();
+    if (value.length === 0) {
+        this.classList.remove('is-valid', 'is-invalid');
+        document.getElementById('usernameFeedback').textContent = '';
+    } else if (value.length >= 3) {
+        this.classList.add('is-valid');
+        this.classList.remove('is-invalid');
+        document.getElementById('usernameFeedback').textContent = '';
+    } else {
+        this.classList.add('is-invalid');
+        this.classList.remove('is-valid');
+        document.getElementById('usernameFeedback').textContent = 'Mínimo 3 caracteres';
+    }
+    validateForm();
+});
+
+// Validar contraseña
+passwordInput.addEventListener('input', function() {
+    const value = this.value;
+    if (value.length === 0) {
+        this.classList.remove('is-valid', 'is-invalid');
+        document.getElementById('passwordFeedback').textContent = '';
+    } else if (value.length >= 6) {
+        this.classList.add('is-valid');
+        this.classList.remove('is-invalid');
+        document.getElementById('passwordFeedback').textContent = '';
+    } else {
+        this.classList.add('is-invalid');
+        this.classList.remove('is-valid');
+        document.getElementById('passwordFeedback').textContent = 'Mínimo 6 caracteres';
+    }
+    validateForm();
+});
+
+// Prevenir envío si el formulario no es válido
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    if (submitBtn.disabled) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Por favor ingresa tu usuario y contraseña',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+        });
+    }
+});
+
+// Rellenar credenciales demo
+function fillDemoCredentials(username, password) {
+    document.getElementById('username').value = username;
+    document.getElementById('password').value = password;
+    
+    // Disparar eventos para validación
+    const usernameEvent = new Event('input', { bubbles: true });
+    const passwordEvent = new Event('input', { bubbles: true });
+    document.getElementById('username').dispatchEvent(usernameEvent);
+    document.getElementById('password').dispatchEvent(passwordEvent);
+    
+    // Mostrar mensaje
+    Swal.fire({
+        icon: 'info',
+        title: 'Credenciales cargadas',
+        text: `Usuario: ${username}\nContraseña: ${password}`,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+    });
+}
+
+// Recuperación de contraseña
+document.getElementById('forgotForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('resetEmail').value;
+    
+    if (!email) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Correo requerido',
+            text: 'Por favor ingresa tu correo electrónico',
+            confirmButtonText: 'Entendido'
+        });
+        return;
+    }
+    
+    Swal.fire({
+        icon: 'success',
+        title: 'Solicitud enviada',
+        html: `Se han enviado instrucciones a <strong>${email}</strong><br>Revisa tu bandeja de entrada`,
+        confirmButtonText: 'Aceptar'
+    }).then(() => {
+        bootstrap.Modal.getInstance(document.getElementById('forgotModal')).hide();
+        document.getElementById('resetEmail').value = '';
+    });
+});
+
+// Social login
+function socialLogin(provider) {
+    Swal.fire({
+        icon: 'info',
+        title: 'Próximamente',
+        text: `Inicio de sesión con ${provider} estará disponible pronto`,
+        confirmButtonText: 'Entendido'
+    });
+}
+
+// Mostrar mensaje de error si existe en los flashes
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            {% if category == 'danger' %}
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: '{{ message }}',
+                    confirmButtonText: 'Intentar de nuevo'
+                });
+            {% elif category == 'success' %}
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Bienvenido!',
+                    text: '{{ message }}',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+</script>
+{% endblock %}

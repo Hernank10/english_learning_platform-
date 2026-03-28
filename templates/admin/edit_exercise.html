@@ -1,0 +1,744 @@
+  GNU nano 6.2                                             templates/admin/edit_exercise.html                                                       
+{% extends "base.html" %}
+
+{% block title %}Admin - Editar Ejercicio | English Learning Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos del formulario de edición */
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 30px 30px;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-label .required {
+        color: #dc3545;
+        margin-left: 4px;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    /* Vista previa en vivo */
+    .preview-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        position: sticky;
+        top: 20px;
+    }
+    
+    .preview-exercise {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .preview-header {
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Historial de versiones */
+    .version-history {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .version-item {
+        padding: 0.75rem;
+        border-left: 3px solid #dee2e6;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .version-item:hover {
+        background: #f8f9fa;
+        border-left-color: #667eea;
+    }
+    
+    .version-item.active {
+        background: #e9ecef;
+        border-left-color: #28a745;
+    }
+    
+    /* Diferencias */
+    .diff-added {
+        background: #d4edda;
+        color: #155724;
+        padding: 0.125rem 0.25rem;
+        border-radius: 3px;
+    }
+    
+    .diff-removed {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 0.125rem 0.25rem;
+        border-radius: 3px;
+        text-decoration: line-through;
+    }
+    
+    .diff-modified {
+        background: #fff3cd;
+        color: #856404;
+        padding: 0.125rem 0.25rem;
+        border-radius: 3px;
+    }
+    
+    /* Comparación */
+    .comparison-view {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .comparison-col {
+        flex: 1;
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+    }
+    
+    /* Tags de dificultad */
+    .difficulty-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 2px solid transparent;
+    }
+    
+    .difficulty-tag.selected {
+        border-color: #667eea;
+        background: #667eea10;
+    }
+    
+    .difficulty-basic { background: #d4edda; color: #155724; }
+    .difficulty-intermediate { background: #fff3cd; color: #856404; }
+    .difficulty-advanced { background: #f8d7da; color: #721c24; }
+    
+    /* Barra de progreso */
+    .save-progress {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 300px;
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        z-index: 1000;
+        display: none;
+    }
+    
+    /* Animaciones */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .form-section {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    /* Modo oscuro */
+    @media (prefers-color-scheme: dark) {
+        .form-card, .preview-exercise, .save-progress {
+            background: #2d3748;
+            color: #f7fafc;
+        }
+        
+        .form-label {
+            color: #e2e8f0;
+        }
+        
+        .form-control, .form-select {
+            background: #1a202c;
+            border-color: #4a5568;
+            color: #f7fafc;
+        }
+        
+        .preview-card {
+            background: #1a202c;
+        }
+        
+        .version-item:hover {
+            background: #1a202c;
+        }
+        
+        .comparison-col {
+            background: #1a202c;
+        }
+        
+        .difficulty-basic { background: #155724; color: #d4edda; }
+        .difficulty-intermediate { background: #856404; color: #fff3cd; }
+        .difficulty-advanced { background: #721c24; color: #f8d7da; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="bi bi-pencil-square me-2"></i>
+                    Editar Ejercicio
+                </h1>
+                <p class="lead mb-0">Modifica los detalles del ejercicio #{{ exercise.id }}</p>
+            </div>
+            <div>
+                <a href="{{ url_for('admin_exercises') }}" class="btn btn-light btn-lg">
+                    <i class="bi bi-arrow-left me-2"></i>Volver
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row">
+        <!-- Formulario principal -->
+        <div class="col-lg-8">
+            <div class="form-card">
+                <form id="exerciseForm" method="POST" action="{{ url_for('edit_exercise', exercise_id=exercise.id) }}">
+                    <input type="hidden" name="id" value="{{ exercise.id }}">
+                    
+                    <!-- Información básica -->
+                    <div class="form-section">
+                        <h4 class="mb-4">
+                            <i class="bi bi-info-circle me-2 text-primary"></i>
+                            Información Básica
+                        </h4>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Módulo <span class="required">*</span>
+                            </label>
+                            <select class="form-select" id="module" name="module" required>
+                                <option value="basic-questions" {% if exercise.module == 'basic-questions' %}selected{% endif %}>🔤 Preguntas Básicas</option>
+                                <option value="simple-sentences" {% if exercise.module == 'simple-sentences' %}selected{% endif %}>📝 Oraciones Simples</option>
+                                <option value="compound-sentences" {% if exercise.module == 'compound-sentences' %}selected{% endif %}>🧩 Oraciones Compuestas</option>
+                                <option value="connectors" {% if exercise.module == 'connectors' %}selected{% endif %}>🔗 Conectores</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Tipo de ejercicio <span class="required">*</span>
+                            </label>
+                            <select class="form-select" id="type" name="type" required>
+                                <option value="Preguntas con 'to be'" {% if exercise.type == "Preguntas con 'to be'" %}selected{% endif %}>Preguntas con 'to be'</option>
+                                <option value="Preguntas con Do/Does" {% if exercise.type == "Preguntas con Do/Does" %}selected{% endif %}>Preguntas con Do/Does</option>
+                                <option value="Preguntas con Did" {% if exercise.type == "Preguntas con Did" %}selected{% endif %}>Preguntas con Did</option>
+                                <option value="Oraciones Afirmativas" {% if exercise.type == "Oraciones Afirmativas" %}selected{% endif %}>Oraciones Afirmativas</option>
+                                <option value="Oraciones Negativas" {% if exercise.type == "Oraciones Negativas" %}selected{% endif %}>Oraciones Negativas</option>
+                                <option value="Conectores de Contraste" {% if exercise.type == "Conectores de Contraste" %}selected{% endif %}>Conectores de Contraste</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Instrucción <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="instruction" name="instruction" 
+                                   value="{{ exercise.instruction }}" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Contenido -->
+                    <div class="form-section mt-4">
+                        <h4 class="mb-4">
+                            <i class="bi bi-file-text me-2 text-primary"></i>
+                            Contenido del Ejercicio
+                        </h4>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Oración en español <span class="required">*</span>
+                            </label>
+                            <textarea class="form-control" id="spanish" name="spanish" rows="3" required>{{ exercise.spanish }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Respuesta correcta en inglés <span class="required">*</span>
+                            </label>
+                            <textarea class="form-control" id="correctAnswer" name="correct_answer" rows="3" required>{{ exercise.correct_answer }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Pista</label>
+                            <textarea class="form-control" id="hint" name="hint" rows="2">{{ exercise.hint or '' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Explicación gramatical</label>
+                            <textarea class="form-control" id="explanation" name="explanation" rows="3">{{ exercise.explanation or '' }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Configuración -->
+                    <div class="form-section mt-4">
+                        <h4 class="mb-4">
+                            <i class="bi bi-gear me-2 text-primary"></i>
+                            Configuración
+                        </h4>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Dificultad <span class="required">*</span>
+                            </label>
+                            <div class="d-flex gap-3">
+                                <div class="difficulty-tag difficulty-basic {% if exercise.difficulty == 'básico' %}selected{% endif %}" onclick="selectDifficulty('básico')">
+                                    <i class="bi bi-emoji-smile"></i> Básico
+                                </div>
+                                <div class="difficulty-tag difficulty-intermediate {% if exercise.difficulty == 'intermedio' %}selected{% endif %}" onclick="selectDifficulty('intermedio')">
+                                    <i class="bi bi-emoji-neutral"></i> Intermedio
+                                </div>
+                                <div class="difficulty-tag difficulty-advanced {% if exercise.difficulty == 'avanzado' %}selected{% endif %}" onclick="selectDifficulty('avanzado')">
+                                    <i class="bi bi-emoji-angry"></i> Avanzado
+                                </div>
+                            </div>
+                            <input type="hidden" id="difficulty" name="difficulty" value="{{ exercise.difficulty }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Puntos <span class="required">*</span>
+                            </label>
+                            <input type="number" class="form-control" id="points" name="points" 
+                                   value="{{ exercise.points }}" min="5" max="50" step="5" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-2"></i>Guardar Cambios
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" onclick="previewChanges()">
+                            <i class="bi bi-eye me-2"></i>Vista Previa
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="showHistory()">
+                            <i class="bi bi-clock-history me-2"></i>Historial
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Panel de vista previa -->
+        <div class="col-lg-4">
+            <div class="preview-card">
+                <h5 class="mb-3">
+                    <i class="bi bi-eye me-2 text-primary"></i>
+                    Vista Previa en Vivo
+                </h5>
+                <div id="livePreview" class="preview-exercise">
+                    <div class="preview-header">
+                        <span class="badge bg-primary" id="previewModule">{{ exercise.module.replace('-', ' ') | title }}</span>
+                        <span class="badge difficulty-{{ exercise.difficulty }} ms-2" id="previewDifficulty">{{ exercise.difficulty }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <div class="text-muted small" id="previewInstruction">{{ exercise.instruction }}</div>
+                        <div class="mt-2">
+                            <strong>🇪🇸 Español:</strong>
+                            <div id="previewSpanish">{{ exercise.spanish }}</div>
+                        </div>
+                        <div class="mt-2">
+                            <strong>✅ Respuesta correcta:</strong>
+                            <div id="previewAnswer">{{ exercise.correct_answer }}</div>
+                        </div>
+                        <div class="mt-2 text-muted small" id="previewHint">
+                            {% if exercise.hint %}
+                            <i class="bi bi-lightbulb"></i> {{ exercise.hint }}
+                            {% else %}
+                            <i class="bi bi-lightbulb"></i> Sin pista configurada
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-2 border-top">
+                        <div class="d-flex justify-content-between">
+                            <span><i class="bi bi-star text-warning"></i> <span id="previewPoints">{{ exercise.points }}</span> pts</span>
+                            <span><i class="bi bi-calendar"></i> Creado: {{ exercise.created_at[:10] if exercise.created_at else 'N/A' }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Estado de guardado -->
+                <div class="mt-3">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Última modificación: {{ exercise.updated_at[:16] if exercise.updated_at else 'Nunca' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de historial de versiones -->
+<div class="modal fade" id="historyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-clock-history me-2"></i>
+                    Historial de Versiones
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="historyContent" class="version-history">
+                    <!-- Historial dinámico -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de vista previa de cambios -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-git-compare me-2"></i>
+                    Comparación de Cambios
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="comparisonContent">
+                    <!-- Comparación dinámica -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="saveChanges()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress toast -->
+<div id="saveProgress" class="save-progress">
+    <div class="d-flex align-items-center">
+        <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="flex-grow-1">Guardando cambios...</div>
+    </div>
+    <div class="progress mt-2" style="height: 4px;">
+        <div class="progress-bar" id="saveProgressBar" style="width: 0%"></div>
+    </div>
+</div>
+
+<script>
+// Variables de estado
+let originalData = {
+    module: "{{ exercise.module }}",
+    type: "{{ exercise.type }}",
+    instruction: "{{ exercise.instruction }}",
+    spanish: "{{ exercise.spanish }}",
+    correct_answer: "{{ exercise.correct_answer }}",
+    hint: "{{ exercise.hint or '' }}",
+    explanation: "{{ exercise.explanation or '' }}",
+    difficulty: "{{ exercise.difficulty }}",
+    points: {{ exercise.points }}
+};
+
+let currentData = {...originalData};
+let autoSaveTimer = null;
+
+// Seleccionar dificultad
+function selectDifficulty(difficulty) {
+    currentData.difficulty = difficulty;
+    document.getElementById('difficulty').value = difficulty;
+    
+    document.querySelectorAll('.difficulty-tag').forEach(tag => {
+        tag.classList.remove('selected');
+    });
+    event.target.classList.add('selected');
+    
+    updatePreview();
+    checkChanges();
+}
+
+// Actualizar vista previa en vivo
+function updatePreview() {
+    // Módulo
+    const moduleSelect = document.getElementById('module');
+    const moduleText = moduleSelect.options[moduleSelect.selectedIndex]?.text || '';
+    document.getElementById('previewModule').textContent = moduleText.replace(/[🔤📝🧩🔗]/g, '').trim();
+    
+    // Instrucción
+    const instruction = document.getElementById('instruction').value;
+    document.getElementById('previewInstruction').textContent = instruction;
+    
+    // Español
+    const spanish = document.getElementById('spanish').value;
+    document.getElementById('previewSpanish').textContent = spanish || '-';
+    
+    // Respuesta correcta
+    const answer = document.getElementById('correctAnswer').value;
+    document.getElementById('previewAnswer').textContent = answer || '-';
+    
+    // Pista
+    const hint = document.getElementById('hint').value;
+    const hintElement = document.getElementById('previewHint');
+    if (hint) {
+        hintElement.innerHTML = `<i class="bi bi-lightbulb"></i> ${hint}`;
+    } else {
+        hintElement.innerHTML = '<i class="bi bi-lightbulb"></i> Sin pista configurada';
+    }
+    
+    // Dificultad
+    const difficulty = document.getElementById('difficulty').value;
+    const difficultyBadge = document.getElementById('previewDifficulty');
+    difficultyBadge.textContent = difficulty;
+    difficultyBadge.className = `badge difficulty-${difficulty} ms-2`;
+    
+    // Puntos
+    const points = document.getElementById('points').value;
+    document.getElementById('previewPoints').textContent = points;
+    
+    // Actualizar currentData
+    currentData = {
+        module: document.getElementById('module').value,
+        type: document.getElementById('type').value,
+        instruction: document.getElementById('instruction').value,
+        spanish: document.getElementById('spanish').value,
+        correct_answer: document.getElementById('correctAnswer').value,
+        hint: document.getElementById('hint').value,
+        explanation: document.getElementById('explanation').value,
+        difficulty: document.getElementById('difficulty').value,
+        points: parseInt(document.getElementById('points').value)
+    };
+    
+    checkChanges();
+}
+
+// Verificar cambios
+function checkChanges() {
+    let hasChanges = false;
+    for (let key in originalData) {
+        if (originalData[key] != currentData[key]) {
+            hasChanges = true;
+            break;
+        }
+    }
+    
+    // Auto-guardado después de 3 segundos de inactividad
+    if (hasChanges) {
+        if (autoSaveTimer) clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(autoSave, 3000);
+    }
+    
+    return hasChanges;
+}
+
+// Auto-guardar
+function autoSave() {
+    if (!checkChanges()) return;
+    
+    const saveProgress = document.getElementById('saveProgress');
+    const progressBar = document.getElementById('saveProgressBar');
+    
+    saveProgress.style.display = 'block';
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 20;
+        progressBar.style.width = `${progress}%`;
+        if (progress >= 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+                saveProgress.style.display = 'none';
+                showToast('Cambios guardados automáticamente', 'success');
+            }, 500);
+        }
+    }, 200);
+    
+    // Simular guardado
+    setTimeout(() => {
+        for (let key in currentData) {
+            originalData[key] = currentData[key];
+        }
+    }, 1000);
+}
+
+// Mostrar historial de versiones
+function showHistory() {
+    const historyContent = document.getElementById('historyContent');
+    
+    // Simular historial de versiones
+    const versions = [
+        { date: '2024-01-15 10:30', user: 'admin', changes: 'Modificación de respuesta correcta' },
+        { date: '2024-01-10 15:20', user: 'admin', changes: 'Actualización de pista' },
+        { date: '2024-01-05 09:15', user: 'admin', changes: 'Cambio de dificultad a intermedio' },
+        { date: '2024-01-01 14:00', user: 'admin', changes: 'Creación del ejercicio' }
+    ];
+    
+    historyContent.innerHTML = versions.map(v => `
+        <div class="version-item" onclick="restoreVersion('${v.date}')">
+            <div class="d-flex justify-content-between">
+                <strong>${v.date}</strong>
+                <small class="text-muted">por ${v.user}</small>
+            </div>
+            <div class="small text-muted mt-1">${v.changes}</div>
+        </div>
+    `).join('');
+    
+    new bootstrap.Modal(document.getElementById('historyModal')).show();
+}
+
+// Restaurar versión
+function restoreVersion(date) {
+    Swal.fire({
+        title: 'Restaurar versión',
+        text: `¿Restaurar la versión del ${date}? Los cambios actuales se perderán.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, restaurar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            showToast('Versión restaurada correctamente', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('historyModal')).hide();
+        }
+    });
+}
+
+// Vista previa de cambios
+function previewChanges() {
+    if (!checkChanges()) {
+        showToast('No hay cambios para mostrar', 'info');
+        return;
+    }
+    
+    const comparisonContent = document.getElementById('comparisonContent');
+    const fields = [
+        { label: 'Módulo', key: 'module' },
+        { label: 'Tipo', key: 'type' },
+        { label: 'Instrucción', key: 'instruction' },
+        { label: 'Oración en español', key: 'spanish' },
+        { label: 'Respuesta correcta', key: 'correct_answer' },
+        { label: 'Pista', key: 'hint' },
+        { label: 'Explicación', key: 'explanation' },
+        { label: 'Dificultad', key: 'difficulty' },
+        { label: 'Puntos', key: 'points' }
+    ];
+    
+    let html = '<div class="comparison-view">';
+    html += '<div class="comparison-col"><h6>Original</h6>';
+    fields.forEach(field => {
+        html += `<div class="small mb-2"><strong>${field.label}:</strong><br>${originalData[field.key] || '-'}</div>`;
+    });
+    html += '</div>';
+    
+    html += '<div class="comparison-col"><h6>Nuevo</h6>';
+    fields.forEach(field => {
+        let newValue = currentData[field.key] || '-';
+        let className = '';
+        if (originalData[field.key] != currentData[field.key]) {
+            className = 'diff-modified';
+        }
+        html += `<div class="small mb-2"><strong>${field.label}:</strong><br><span class="${className}">${newValue}</span></div>`;
+    });
+    html += '</div>';
+    html += '</div>';
+    
+    comparisonContent.innerHTML = html;
+    new bootstrap.Modal(document.getElementById('previewModal')).show();
+}
+
+// Guardar cambios
+function saveChanges() {
+    document.getElementById('exerciseForm').submit();
+}
+
+// Mostrar toast
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type} border-0 position-fixed bottom-0 end-0 m-3`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    toast.addEventListener('hidden.bs.toast', () => toast.remove());
+}
+
+// Escuchar cambios en el formulario
+document.getElementById('module').addEventListener('change', updatePreview);
+document.getElementById('type').addEventListener('change', updatePreview);
+document.getElementById('instruction').addEventListener('input', updatePreview);
+document.getElementById('spanish').addEventListener('input', updatePreview);
+document.getElementById('correctAnswer').addEventListener('input', updatePreview);
+document.getElementById('hint').addEventListener('input', updatePreview);
+document.getElementById('explanation').addEventListener('input', updatePreview);
+document.getElementById('points').addEventListener('input', updatePreview);
+
+// Confirmar antes de salir
+window.addEventListener('beforeunload', function(e) {
+    if (checkChanges()) {
+        e.preventDefault();
+        e.returnValue = 'Tienes cambios sin guardar. ¿Estás seguro de salir?';
+    }
+});
+
+// Inicializar
+document.addEventListener('DOMContentLoaded', function() {
+    updatePreview();
+});
+</script>
+{% endblock %}
+
